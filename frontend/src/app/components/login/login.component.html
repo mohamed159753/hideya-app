@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Get Started Today</title>
+
+</head>
+<body>
+    <div class="background"></div>
+    <p>miaw</p>
+    <div class="container">
+        <div class="card">
+            <!-- Left Section -->
+            <div class="left-section">
+                <div class="miaw">
+                    <h2>تسجيل الدخول</h2>
+                    
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <input type="email" class="form-input" placeholder="البريد الإلكتروني" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="password" class="form-input" placeholder="كلمة المرور" required>
+                        </div>
+
+                        <button type="submit" class="submit-btn">تسجيل الدخول</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Section -->
+            <div class="right-section">
+                <div>
+                    <h1>قال الله تعالى </h1>
+                    <p >وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا" سورة المزمل — الآية ٤"</p>
+                    
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted!');
+            // Add your form submission logic here
+        });
+    </script>
+</body>
+</html>

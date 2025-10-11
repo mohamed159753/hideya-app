@@ -1,0 +1,191 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #FDB873;
+            color: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+        }
+
+        .background {
+            background-color: #FDB873;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: ;
+            backdrop-filter: blur(8px);
+        }
+
+        .card {
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        .right-section {
+            padding: 4rem;
+            background-image: url('https://i.pinimg.com/1200x/35/5f/74/355f74a624a52dcdcfe67c5818803cc6.jpg');
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .right-section h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            text-align: right;
+        }
+
+        .right-section p {
+            font-size: 1.125rem;
+            color: #999;
+            line-height: 1.75;
+            margin-bottom: 2rem;
+            text-align: right;
+        }
+
+
+        .logo {
+            width: 2rem;
+            height: 2rem;
+            background-color: #10b981;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .miaw{
+            margin-top: 3rem;
+        }
+
+        .left-section {
+            padding: 4rem;
+            background-color: #014B3A;
+            backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(64, 64, 64, 0.5);
+            position: relative;
+        }
+
+        .left-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: right;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid white;
+            padding: 0 0 0.75rem 0;
+            font-size: 1rem;
+            color: #fafafa;
+            outline: none;
+            transition: border-color 0.3s ease;
+            text-align: right;
+        }
+
+        .form-input::placeholder {
+            color: white;
+        }
+
+        .form-input:focus {
+            border-bottom-color: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: #DA9F31;
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 3rem;
+        }
+
+        .submit-btn:hover {
+            background-color: #059669;
+        }
+
+        .sign-in-link {
+            text-align: center;
+            margin-top: 2rem;
+            color: #999;
+        }
+
+        .sign-in-link a {
+            color: #10b981;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .sign-in-link a:hover {
+            color: #059669;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                grid-template-columns: 1fr;
+            }
+
+            .right-section,
+            .left-section {
+                padding: 2rem;
+            }
+
+            .right-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .left-section h2 {
+                font-size: 2rem;
+            }
+        }
