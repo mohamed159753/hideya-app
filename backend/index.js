@@ -8,11 +8,11 @@ app.use(express.json());
 require("./config/db");
 
 app.get("/", (req, res) => {
-  res.send("API Quran Competition is running ✅");
+  res.send("API Quran Competition is running ");
 });
 
 app.get("/test-db", (req, res) => {
-    res.send("MongoDB Atlas is working ✅");
+    res.send("MongoDB Atlas is working ");
 });
 
 const PORT = 5000;
