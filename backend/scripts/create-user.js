@@ -103,7 +103,7 @@ async function createUser() {
       // Create user
       const user = new User({
         email: email.toLowerCase().trim(),
-        password: hashedPassword,
+        password : hashedPassword,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         role,

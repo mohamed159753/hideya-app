@@ -9,6 +9,7 @@ const generateToken = (userId) => {
 };
 
 exports.login = async (req, res) => {
+  console.log("Request body:", req.body);
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -17,7 +18,10 @@ exports.login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    console.log(password);
+
+    const user = await User.findOne({ email })
+    console.log("Found user:", user);
     if (!user) {
       return res.status(401).json({ 
         message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" 

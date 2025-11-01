@@ -2,12 +2,24 @@ const express = require("express");
 const cors = require("cors");
 const User = require("./models/User");
 const authRoutes = require("./routes/authRoutes");
+const Participation = require("./models/Participation");
+
+const competitionRoutes = require('./routes/competitions');
+const categoryRoutes = require('./routes/categories');
+const competitorRoutes = require("./routes/competitors");
+const participationRoutes = require('./routes/participations'); // your router file
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth" , authRoutes)
+app.use('/api/competitions', competitionRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/competitors', competitorRoutes);
+app.use("/api/participations", participationRoutes);
+
+
 
 require("./config/db");
 

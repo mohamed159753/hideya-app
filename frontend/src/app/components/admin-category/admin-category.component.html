@@ -1,0 +1,81 @@
+<div class="container">
+  <!-- Form Card -->
+  <div class="card">
+    <h1>إدارة الفئات</h1>
+
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="title">اسم الفئة</label>
+        <input
+          id="title"
+          type="number"
+          formControlName="name"
+          placeholder="أدخل اسم الفئة"
+          required
+        />
+        <div
+          *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
+          class="error-message"
+        >
+          مطلوب اسم الفئة
+        </div>
+      </div>
+
+      <div class="form-buttons">
+        <button
+          type="submit"
+          class="btn primary"
+          [disabled]="categoryForm.invalid"
+        >
+          {{ editingId ? 'تحديث' : 'إضافة' }}
+        </button>
+        <button
+          *ngIf="editingId"
+          type="button"
+          class="btn secondary"
+          (click)="onCancel()"
+        >
+          إلغاء
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card">
+    <h2>قائمة الفئات</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>اسم الفئة</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of categories">
+            <td>{{ category.name }} حزب</td>
+            <td class="actions">
+              <button
+                class="btn small primary"
+                (click)="onEdit(category)"
+              >
+                تعديل
+              </button>
+              <button
+                class="btn small danger"
+                (click)="onDelete(category._id!)"
+              >
+                حذف
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="categories.length === 0" class="empty-message">
+        لا توجد فئات حالياً
+      </div>
+    </div>
+  </div>
+</div>

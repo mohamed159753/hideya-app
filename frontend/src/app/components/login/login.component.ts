@@ -37,9 +37,12 @@ export class LoginComponent {
         password: this.loginForm.get('password')?.value
       };
 
+      console.log(loginData);
+
       this.http.post('http://localhost:5000/api/auth/login', loginData)
         .subscribe({
           next: (response: any) => {
+            
             this.isLoading = false;
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('userData', JSON.stringify(response.user));

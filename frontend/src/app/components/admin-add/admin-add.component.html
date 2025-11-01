@@ -1,0 +1,122 @@
+<div class="container" dir="rtl">
+
+  <!-- Form Card -->
+  <div class="card form-card">
+    <h2>{{ editMode ? 'تعديل المتسابق' : 'إضافة متسابق' }}</h2>
+    <form [formGroup]="competitorForm" (ngSubmit)="submit()">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>الاسم الأول *</label>
+          <input type="text" formControlName="firstName" placeholder="أدخل الاسم الأول" />
+          <span class="error" *ngIf="competitorForm.get('firstName')?.invalid && competitorForm.get('firstName')?.touched">
+            الاسم الأول مطلوب
+          </span>
+        </div>
+        
+        <div class="form-group">
+          <label>اللقب *</label>
+          <input type="text" formControlName="lastName" placeholder="أدخل اللقب" />
+          <span class="error" *ngIf="competitorForm.get('lastName')?.invalid && competitorForm.get('lastName')?.touched">
+            اللقب مطلوب
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>العمر *</label>
+          <input type="number" formControlName="age" placeholder="أدخل العمر" min="5" />
+          <span class="error" *ngIf="competitorForm.get('age')?.invalid && competitorForm.get('age')?.touched">
+            العمر مطلوب (5 سنوات على الأقل)
+          </span>
+        </div>
+        
+        <div class="form-group">
+          <label>الصنف *</label>
+          <input type="text" formControlName="classLevel" placeholder="مثال: من 9---12" />
+          <span class="error" *ngIf="competitorForm.get('classLevel')?.invalid && competitorForm.get('classLevel')?.touched">
+            الصنف مطلوب
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>الفرع (المدرسة) *</label>
+        <input type="text" formControlName="branch" placeholder="أدخل اسم الفرع/المدرسة" />
+        <span class="error" *ngIf="competitorForm.get('branch')?.invalid && competitorForm.get('branch')?.touched">
+          الفرع مطلوب
+        </span>
+      </div>
+
+      <div class="form-row">
+  <div class="form-group">
+    <label>من سورة *</label>
+    <select formControlName="surahFrom" required>
+      <option value="" disabled selected>اختر السورة الأولى</option>
+      <option *ngFor="let surah of surahs" [value]="surah">{{ surah }}</option>
+    </select>
+    <span class="error" *ngIf="competitorForm.get('surahFrom')?.invalid && competitorForm.get('surahFrom')?.touched">
+      السورة الأولى مطلوبة
+    </span>
+  </div>
+
+  <div class="form-group">
+    <label>إلى سورة *</label>
+    <select formControlName="surahTo" required>
+      <option value="" disabled selected>اختر السورة الأخيرة</option>
+      <option *ngFor="let surah of surahs" [value]="surah">{{ surah }}</option>
+    </select>
+    <span class="error" *ngIf="competitorForm.get('surahTo')?.invalid && competitorForm.get('surahTo')?.touched">
+      السورة الأخيرة مطلوبة
+    </span>
+  </div>
+</div>
+
+      
+
+      <div class="form-buttons">
+        <button type="submit" class="btn primary" [disabled]="competitorForm.invalid">
+          {{ editMode ? 'تحديث' : 'إضافة' }}
+        </button>
+        <button type="button" class="btn secondary" (click)="resetForm()">إلغاء</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Competitors Table -->
+  <div class="card table-card">
+    <h2>قائمة المتسابقين</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم الكامل</th>
+            <th>العمر</th>
+            <th>الصنف</th>
+            <th>الفرع</th>
+            <th>مقدار الحفظ</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of competitors">
+            <td>{{ c.firstName }} {{ c.lastName }}</td>
+            <td>{{ c.age }}</td>
+            <td>{{ c.classLevel }}</td>
+            <td>{{ c.branch }}</td>
+            <td>{{ c.surahRange?.from }} - {{ c.surahRange?.to }}</td>
+            <td>
+              <button class="btn small primary" (click)="edit(c)">تعديل</button>
+              <button class="btn small danger" (click)="delete(c._id)">حذف</button>
+            </td>
+          </tr>
+          <tr *ngIf="competitors.length === 0">
+            <td colspan="6" style="text-align: center;">لا توجد بيانات</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

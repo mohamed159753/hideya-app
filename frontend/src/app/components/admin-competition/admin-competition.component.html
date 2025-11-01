@@ -1,0 +1,75 @@
+<div class="container">
+  <div class="card">
+    <h1>إدارة المسابقات</h1>
+
+    <form [formGroup]="competitionForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>اسم المسابقة</label>
+        <input formControlName="title" type="text" placeholder="أدخل اسم المسابقة" />
+      </div>
+
+      <div class="form-group">
+        <label>نوع المسابقة</label>
+        <select formControlName="type">
+          <option value="local">محلية</option>
+          <option value="regional">إقليمية</option>
+          <option value="national">وطنية</option>
+          <option value="international">دولية</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>الفئات</label>
+        <select formControlName="categoryIds" multiple>
+          <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>تاريخ البداية</label>
+        <input type="datetime-local" formControlName="startDate" />
+      </div>
+
+      <div class="form-group">
+        <label>تاريخ النهاية</label>
+        <input type="datetime-local" formControlName="endDate" />
+      </div>
+
+      <div class="form-buttons">
+        <button type="submit" class="btn primary" [disabled]="competitionForm.invalid">
+          {{ editingId ? 'تحديث' : 'إضافة' }}
+        </button>
+        <button *ngIf="editingId" type="button" class="btn secondary" (click)="onCancel()">
+          إلغاء
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>قائمة المسابقات</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>اسم المسابقة</th>
+          <th>النوع</th>
+          <th>تاريخ البداية</th>
+          <th>تاريخ النهاية</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let competition of competitions">
+          <td>{{ competition.title }}</td>
+          <td>{{ competition.type }}</td>
+          <td>{{ formatDate(competition.startDate) }}</td>
+          <td>{{ formatDate(competition.endDate) }}</td>
+          <td>
+            <button class="btn small primary" (click)="onEdit(competition)">تعديل</button>
+            <button class="btn small danger" (click)="onDelete(competition._id!)">حذف</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

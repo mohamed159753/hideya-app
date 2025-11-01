@@ -1,3 +1,4 @@
+// models/Competition.js
 const mongoose = require("mongoose");
 
 const competitionSchema = new mongoose.Schema({
@@ -6,6 +7,6 @@ const competitionSchema = new mongoose.Schema({
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   categoryIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }]
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Competition", competitionSchema);
