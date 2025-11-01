@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const juryAssignmentSchema = new mongoose.Schema({
   competitionId: { type: mongoose.Schema.Types.ObjectId, ref: "Competition", required: true },
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+  classRoom: { type: String },
   juryMembers: [
     {
       userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

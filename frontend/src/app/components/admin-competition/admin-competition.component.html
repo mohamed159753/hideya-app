@@ -62,14 +62,87 @@
         <tr *ngFor="let competition of competitions">
           <td>{{ competition.title }}</td>
           <td>{{ competition.type }}</td>
+          <td>{{ getCategoryNames(competition) }}</td>
           <td>{{ formatDate(competition.startDate) }}</td>
           <td>{{ formatDate(competition.endDate) }}</td>
           <td>
             <button class="btn small primary" (click)="onEdit(competition)">تعديل</button>
             <button class="btn small danger" (click)="onDelete(competition._id!)">حذف</button>
+            <button class="btn small" (click)="openAssignments(competition)">إدارة الفئات</button>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Assignments Modal -->
+<div class="modal" *ngIf="showAssignmentsModal">
+  <div class="modal-backdrop" (click)="closeAssignments()"></div>
+  <div class="modal-panel card">
+    <h3>إدارة الفئات للمسابقة: {{ selectedCompetition?.title }}</h3>
+    <div *ngFor="let cat of selectedCompetition?.categoryIds">
+      <div class="category-row">
+        <strong>{{ cat.name }}</strong>
+        <div *ngIf="getAssignmentForCategory(cat._id); else noAssign">
+          <div class="assignment">
+            <div>القاعة: {{ getAssignmentForCategory(cat._id)?.classRoom || '-' }}</div>
+            <div>
+              الأعضاء:
+              <span *ngFor="let m of getAssignmentForCategory(cat._id)?.juryMembers">
+                {{ formatUserName(m.userId) }} ({{ m.role }})
+              </span>
+            </div>
+            <div class="actions">
+              <button class="btn small" (click)="startEditAssignment(getAssignmentForCategory(cat._id))">تعديل</button>
+              <button class="btn small danger" (click)="deleteAssignment(getAssignmentForCategory(cat._id)?._id)">حذف</button>
+            </div>
+          </div>
+        </div>
+        <ng-template #noAssign>
+          <div>لا يوجد تعيين بعد</div>
+          <button class="btn small" (click)="openNewAssignmentForCategory(cat)">إضافة تعيين</button>
+        </ng-template>
+
+        <!-- Inline form for assignment (shows when editingCategoryId matches this category) -->
+        <div *ngIf="editingCategoryId === cat._id" class="assignment-form">
+          <label>القاعة</label>
+          <input type="text" [(ngModel)]="assignmentDraft.classRoom" [ngModelOptions]="{standalone: true}" />
+
+          <label>تصفية المستخدمين</label>
+          <div class="filter-row">
+            <label>الخبرة الأدنى</label>
+            <input type="number" [(ngModel)]="filterExpertiseMin" [ngModelOptions]="{standalone: true}" min="1" max="10" />
+            <label>مرشح رئيسًا</label>
+            <select [(ngModel)]="filterCanBePresident" [ngModelOptions]="{standalone: true}">
+              <option [ngValue]="null">الكل</option>
+              <option [ngValue]="true">نعم</option>
+              <option [ngValue]="false">لا</option>
+            </select>
+          </div>
+
+          <label>الرئيس</label>
+          <select [(ngModel)]="assignmentDraft.presidentId" (ngModelChange)="onPresidentChange($event)" [ngModelOptions]="{standalone: true}">
+            <option value="">-- اختر --</option>
+            <option *ngFor="let u of getFilteredUsers()" [value]="u._id" [disabled]="assignmentDraft.memberIds?.includes(u._id)">{{ u.firstName }} {{ u.lastName }} ({{ u.expertiseLevel || '-' }})</option>
+          </select>
+
+          <label>الأعضاء (اختر 2 أو أكثر)</label>
+          <select multiple [(ngModel)]="assignmentDraft.memberIds" (ngModelChange)="onMemberIdsChange($event)" [ngModelOptions]="{standalone: true}">
+            <option *ngFor="let u of getFilteredUsers()" [value]="u._id" [disabled]="assignmentDraft.presidentId === u._id">{{ u.firstName }} {{ u.lastName }} ({{ u.expertiseLevel || '-' }})</option>
+          </select>
+
+          <div class="form-buttons">
+            <button class="btn primary" (click)="submitAssignment(cat._id)">حفظ التعيين</button>
+            <button class="btn secondary" (click)="initAssignmentForm()">إلغاء</button>
+          </div>
+        </div>
+      </div>
+      <hr />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" (click)="closeAssignments()">إغلاق</button>
+    </div>
   </div>
 </div>

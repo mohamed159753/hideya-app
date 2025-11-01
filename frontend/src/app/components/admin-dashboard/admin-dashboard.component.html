@@ -1,1 +1,47 @@
-<p>admin-dashboard works!</p>
+<div class="container" dir="rtl">
+  <div class="dashboard">
+    <!-- Main content area -->
+    <section class="content card">
+      <div *ngIf="currentTab === 'overview'">
+        <h2>نظرة عامة</h2>
+        <p>احصائيات سريعة وروابط سريعة للوصول إلى أجزاء الإدارة.</p>
+      </div>
+
+      <app-admin-competition
+        *ngIf="currentTab === 'competitions'"
+      ></app-admin-competition>
+
+      <app-admin-category
+        *ngIf="currentTab === 'categories'"
+      ></app-admin-category>
+
+      <!-- competitors / add -->
+      <app-admin-add *ngIf="currentTab === 'participants'"></app-admin-add>
+
+      <!-- participation management -->
+      <app-admin-participation
+        *ngIf="currentTab === 'participations'"
+      ></app-admin-participation>
+
+      <!-- jury management / quick access -->
+  <app-jury-dashboard *ngIf="currentTab === 'jury'"></app-jury-dashboard>
+
+  <!-- users / jury members management -->
+  <app-admin-user *ngIf="currentTab === 'users'"></app-admin-user>
+    </section>
+    <!-- Right-side Tabs (since dir=rtl we use row-reverse) -->
+    <aside class="sidebar card">
+      <h3 class="sidebar-title">لوحة المسؤول</h3>
+      <nav class="tabs">
+        <button
+          *ngFor="let t of tabs"
+          class="tab-btn"
+          [class.active]="currentTab === t.id"
+          (click)="selectTab(t.id)"
+        >
+          {{ t.label }}
+        </button>
+      </nav>
+    </aside>
+  </div>
+</div>

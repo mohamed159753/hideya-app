@@ -1,1 +1,16 @@
-<p>jury-dashboard works!</p>
+<div class="container" dir="rtl">
+	<div class="card">
+		<h2>المهام المكلفة لي</h2>
+		<div *ngIf="assignments.length === 0">لا يوجد تعيينات حالياً</div>
+		<div *ngFor="let a of assignments" class="assignment-row">
+			<h3>{{ a.competitionId?.title || 'مسابقة' }} - {{ a.categoryId?.name || '' }}</h3>
+			<div>القاعة: {{ a.classRoom || '-' }}</div>
+			<div>الأعضاء:
+				<span *ngFor="let m of a.juryMembers">{{ m.userId?.firstName }} {{ m.userId?.lastName }} ({{ m.role }})</span>
+			</div>
+			<div class="actions">
+				<button class="btn primary">افتح القاعة</button>
+			</div>
+		</div>
+	</div>
+</div>

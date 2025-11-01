@@ -18,6 +18,10 @@ app.use('/api/competitions', competitionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/competitors', competitorRoutes);
 app.use("/api/participations", participationRoutes);
+const usersRoutes = require('./routes/users');
+app.use('/api/users', usersRoutes);
+const juryRoutes = require('./routes/juryAssignments');
+app.use('/api/jury-assignments', juryRoutes);
 
 
 

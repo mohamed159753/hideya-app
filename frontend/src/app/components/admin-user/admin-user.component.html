@@ -1,0 +1,82 @@
+<div class="container" dir="rtl">
+	<div class="card">
+		<h2>{{ editId ? 'تعديل عضو اللجنة' : 'إضافة عضو لجنة' }}</h2>
+
+		<form [formGroup]="userForm" (ngSubmit)="submit()">
+			<div class="form-row">
+				<div class="form-group">
+					<label>الاسم الأول</label>
+					<input type="text" formControlName="firstName" />
+				</div>
+				<div class="form-group">
+					<label>اللقب</label>
+					<input type="text" formControlName="lastName" />
+				</div>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group">
+					<label>البريد الإلكتروني</label>
+					<input type="email" formControlName="email" />
+				</div>
+				<div class="form-group">
+					<label>الدور</label>
+					<select formControlName="role">
+						<option value="jury">عضو لجنة</option>
+						<option value="admin">مشرف</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group">
+					<label>رشح رئيسًا</label>
+					<input type="checkbox" formControlName="canBePresident" />
+				</div>
+				<div class="form-group">
+					<label>مستوى الخبرة (1-10)</label>
+					<input type="number" formControlName="expertiseLevel" min="1" max="10" />
+				</div>
+			</div>
+
+			<div class="form-buttons">
+				<button class="btn primary" type="submit">{{ editId ? 'تحديث' : 'إضافة' }}</button>
+				<button class="btn secondary" type="button" (click)="cancelEdit()" *ngIf="editId">إلغاء</button>
+			</div>
+		</form>
+	</div>
+
+	<div class="card table-card">
+		<h2>أعضاء اللجنة</h2>
+		<div class="table-wrapper">
+			<table>
+				<thead>
+					<tr>
+						<th>الاسم</th>
+						<th>البريد</th>
+						<th>الدور</th>
+						<th>مرشح رئيسًا</th>
+						<th>الخبرة</th>
+						<th>الإجراءات</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let u of users">
+						<td>{{ u.firstName }} {{ u.lastName }}</td>
+						<td>{{ u.email }}</td>
+						<td>{{ u.role }}</td>
+						<td>{{ u.canBePresident ? 'نعم' : 'لا' }}</td>
+						<td>{{ u.expertiseLevel || '-' }}</td>
+						<td>
+							<button class="btn small primary" (click)="edit(u)">تعديل</button>
+							<button class="btn small danger" (click)="delete(u._id)">حذف</button>
+						</td>
+					</tr>
+					<tr *ngIf="users.length === 0">
+						<td colspan="6" style="text-align:center">لا توجد بيانات</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
