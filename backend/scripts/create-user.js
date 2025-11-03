@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const readline = require("readline");
+const path = require('path');
+// Try loading .env from script folder first, then parent (backend) folder so the script
+// works when invoked from either the repository root or the scripts directory.
 require("dotenv").config();
+require("dotenv").config({ path: path.resolve(__dirname, '..', '.env') });
 
 // Create readline interface
 const rl = readline.createInterface({
@@ -52,6 +56,14 @@ async function createUser() {
     // Get MongoDB URL from environment or use default
 
     const MONGODB_URI = process.env.MONGO_URI;
+
+    if (!MONGODB_URI) {
+      console.error('\n❌ Error: MONGO_URI is not defined.');
+      console.error('Make sure you have a `.env` file in the backend folder with MONGO_URI set,');
+      console.error('or set the environment variable before running the script. Example (PowerShell):');
+      console.error('  $env:MONGO_URI = "your-mongo-uri"\n  node scripts\\create-user.js');
+      process.exit(1);
+    }
 
     console.log("🔗 Connecting to MongoDB...");
     await mongoose.connect(MONGODB_URI, {
@@ -135,3 +147,5 @@ async function createUser() {
 
 // Start the script
 createUser();
+
+// node create-user.js

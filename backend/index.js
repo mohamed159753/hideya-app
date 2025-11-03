@@ -22,6 +22,8 @@ const usersRoutes = require('./routes/users');
 app.use('/api/users', usersRoutes);
 const juryRoutes = require('./routes/juryAssignments');
 app.use('/api/jury-assignments', juryRoutes);
+const marksRoutes = require('./routes/marks');
+app.use('/api/marks', marksRoutes);
 
 
 

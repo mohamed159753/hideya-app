@@ -1,16 +1,489 @@
 <div class="container" dir="rtl">
-	<div class="card">
-		<h2>المهام المكلفة لي</h2>
-		<div *ngIf="assignments.length === 0">لا يوجد تعيينات حالياً</div>
-		<div *ngFor="let a of assignments" class="assignment-row">
-			<h3>{{ a.competitionId?.title || 'مسابقة' }} - {{ a.categoryId?.name || '' }}</h3>
-			<div>القاعة: {{ a.classRoom || '-' }}</div>
-			<div>الأعضاء:
-				<span *ngFor="let m of a.juryMembers">{{ m.userId?.firstName }} {{ m.userId?.lastName }} ({{ m.role }})</span>
-			</div>
-			<div class="actions">
-				<button class="btn primary">افتح القاعة</button>
-			</div>
-		</div>
-	</div>
+  <div class="card">
+    <h2>المهام المكلفة لي</h2>
+    <div *ngIf="assignments.length === 0">لا يوجد تعيينات حالياً</div>
+    <div *ngFor="let a of assignments" class="assignment-row">
+      <h3>
+        {{ a.competitionId?.title || "مسابقة" }} -
+        {{ a.categoryId?.name || "" }}
+      </h3>
+      <div>القاعة: {{ a.classRoom || "-" }}</div>
+      <div>
+        الأعضاء:
+        <span *ngFor="let m of a.juryMembers" class="member">
+          {{ m.userId?.firstName }} {{ m.userId?.lastName }} ({{ m.role }})
+        </span>
+      </div>
+      <div class="actions">
+        <button class="btn primary" (click)="openAssignment(a)">
+          افتح القاعة
+        </button>
+      </div>
+      <div class="actions">
+        <button class="btn primary" (click)="closeAssignment()">
+          أغلق القاعة
+        </button>
+      </div>
+
+      <!-- participants list for selected assignment -->
+      <div *ngIf="selectedAssignment === a" class="participants">
+        <h4>المشاركون</h4>
+        <div *ngIf="participants.length === 0">
+          لا توجد مشاركات في هذه الفئة
+        </div>
+        <ul>
+          <li *ngFor="let p of participants" class="participant-item">
+            <div class="p-left">
+              {{ p.competitorId?.firstName }} {{ p.competitorId?.lastName }}
+              <span class="badge" *ngIf="p.status">{{ p.status }}</span>
+            </div>
+            <div class="p-right">
+              <button class="btn small primary" (click)="openMarkModal(p)">
+                وضع علامة
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Marking modal -->
+    <div class="modal" *ngIf="markModalOpen">
+      <div class="modal-content large">
+        <h3>وضع علامة للمشارك</h3>
+
+        <div *ngIf="selectedParticipation">
+          <p class="participant-title">
+            المشارك:
+            <strong
+              >{{ selectedParticipation.competitorId?.firstName }}
+              {{ selectedParticipation.competitorId?.lastName }}</strong
+            >
+            <span class="muted">#{{ selectedParticipation._id }}</span>
+          </p>
+
+          <div *ngIf="loadingMark" class="loading">جارٍ تحميل العلامة...</div>
+
+          <form
+            [formGroup]="markForm"
+            *ngIf="!loadingMark"
+            (ngSubmit)="submitMark()"
+          >
+            <!-- top summary -->
+            <div class="top-summary">
+              <div class="summary-item">
+                <div class="label">حاصل الحفظ</div>
+                <div class="value">{{ memorizationTotalPreview }}</div>
+                <div class="sub">/70</div>
+              </div>
+              <div class="summary-item">
+                <div class="label">حاصل التجويد</div>
+                <div class="value">{{ tajweedTotalPreview }}</div>
+                <div class="sub">/25</div>
+              </div>
+              <div class="summary-item">
+                <div class="label">الأداء</div>
+                <div class="value">{{ performanceScorePreview }}</div>
+                <div class="sub">/5</div>
+              </div>
+              <div class="summary-item total">
+                <div class="label">المجموع التقريبي</div>
+                <div class="value big">{{ currentTotal }}</div>
+                <div class="sub">/100</div>
+              </div>
+            </div>
+
+            <!-- Excel-like table -->
+            <div class="score-table-wrap" role="table" aria-label="جدول تقييم">
+              <table class="score-table" dir="rtl">
+                <thead>
+                  <tr>
+                    <th rowspan="2" class="col-left">الاسم/اللقب</th>
+                    <th colspan="4" class="header-yellow">تقييم الحفظ (70)</th>
+                    <th colspan="8" class="header-light">تقييم التجويد (25)</th>
+                    <th rowspan="2" class="header-yellow">الأداء (5)</th>
+                    <th rowspan="2" class="header-green">المجموع</th>
+                  </tr>
+                  <tr>
+                    <!-- memorization subheaders: these are the counters visible in the image -->
+                    <th class="sub-col">تنبيه<br />(0.5)</th>
+                    <th class="sub-col">فتح<br />(1.5)</th>
+                    <th class="sub-col">تردد<br />(0.25)</th>
+                    <th class="sub-col ded">خصم الحفظ</th>
+
+                    <!-- tajweed subheaders (each mistake = 0.25) -->
+                    <th class="taj-col">الغنة</th>
+                    <th class="taj-col">المدود</th>
+                    <th class="taj-col">المخارج</th>
+                    <th class="taj-col">الصفات</th>
+                    <th class="taj-col">أصول الرواية</th>
+                    <th class="taj-col">أخرى</th>
+                    <th class="taj-col ded">خصم التجويد</th>
+                    <th class="taj-col sum">حاصل التجويد</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <!-- render one table row per question -->
+                  <tr
+                    *ngFor="let qCtrl of questions.controls; let i = index"
+                    [formGroupName]="i"
+                    class="question-row"
+                  >
+                    <td class="q-title">
+                      سؤال {{ qCtrl.get("questionNumber")?.value }}
+                    </td>
+
+                    <!-- memorization counters -->
+                    <td>
+                      <div class="counter">
+                        <button
+                          (click)="decreaseMistake(i, 'tanbih')"
+                          [disabled]="isConfirmed || !isPresidentForSelected"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          formControlName="tanbih"
+                          [value]="
+                            qCtrl.get('memorization')?.get('tanbih')?.value
+                          "
+                          readonly
+                        />
+                        <button
+                          (click)="increaseMistake(i, 'tanbih')"
+                          [disabled]="isConfirmed || !isPresidentForSelected"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter">
+                        <button
+                          (click)="decreaseMistake(i, 'fath')"
+                          [disabled]="isConfirmed || !isPresidentForSelected"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="
+                            qCtrl.get('memorization')?.get('fath')?.value
+                          "
+                          readonly
+                        />
+                        <button
+                          (click)="increaseMistake(i, 'fath')"
+                          [disabled]="isConfirmed || !isPresidentForSelected"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter">
+                        <button
+                          (click)="decreaseMistake(i, 'taradud')"
+                          [disabled]="isConfirmed || !isPresidentForSelected"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="
+                            qCtrl.get('memorization')?.get('taradud')?.value
+                          "
+                          readonly
+                        />
+                        <button
+                          (click)="increaseMistake(i, 'taradud')"
+                          [disabled]="isConfirmed || !isPresidentForSelected"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <!-- per-question memorization deduction -->
+                    <td class="deduction red">
+                      {{ perQuestionMemDeduction(i) | number : "1.2-2" }}
+                    </td>
+
+                    <!-- tajweed counters -->
+                    <td>
+                      <div class="counter taj">
+                        <button
+                          (click)="decreaseTaj(i, 'ghunna')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="qCtrl.get('tajweed')?.get('ghunna')?.value"
+                          readonly
+                        />
+                        <button
+                          (click)="increaseTaj(i, 'ghunna')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter taj">
+                        <button
+                          (click)="decreaseTaj(i, 'mad')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="qCtrl.get('tajweed')?.get('mad')?.value"
+                          readonly
+                        />
+                        <button
+                          (click)="increaseTaj(i, 'mad')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter taj">
+                        <button
+                          (click)="decreaseTaj(i, 'makharij')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="qCtrl.get('tajweed')?.get('makharij')?.value"
+                          readonly
+                        />
+                        <button
+                          (click)="increaseTaj(i, 'makharij')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter taj">
+                        <button
+                          (click)="decreaseTaj(i, 'sifat')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="qCtrl.get('tajweed')?.get('sifat')?.value"
+                          readonly
+                        />
+                        <button
+                          (click)="increaseTaj(i, 'sifat')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter taj">
+                        <button
+                          (click)="decreaseTaj(i, 'usul')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="qCtrl.get('tajweed')?.get('usul')?.value"
+                          readonly
+                        />
+                        <button
+                          (click)="increaseTaj(i, 'usul')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="counter taj">
+                        <button
+                          (click)="decreaseTaj(i, 'other')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          [value]="qCtrl.get('tajweed')?.get('other')?.value"
+                          readonly
+                        />
+                        <button
+                          (click)="increaseTaj(i, 'other')"
+                          [disabled]="isConfirmed"
+                          type="button"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td class="deduction red">
+                      {{ perQuestionTajDeduction(i) | number : "1.2-2" }}
+                    </td>
+
+                    <td class="taj-sum">
+                      {{ perQuestionTajScore(i) | number : "1.2-2" }} /
+                      {{ tajMaxPerQuestion() }}
+                    </td>
+
+                    <!-- performance column placeholder (per-row blank; summary at bottom) -->
+                    <td class="perf-cell">—</td>
+
+                    <td class="row-sum">
+                      {{ perQuestionRowTotal(i) | number : "1.2-2" }}
+                    </td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr class="totals-row">
+                    <td class="footer-label">المجموع الكلي</td>
+
+                    <!-- Totals for memorization counters: show aggregated deductions or counters -->
+                    <td colspan="3" class="totals-counters">
+                      <div>
+                        تنبيه: {{ totalCounters("memorization", "tanbih") }}
+                      </div>
+                      <div>
+                        فتح: {{ totalCounters("memorization", "fath") }}
+                      </div>
+                      <div>
+                        تردد: {{ totalCounters("memorization", "taradud") }}
+                      </div>
+                    </td>
+
+                    <td class="deduction red big">
+                      خصم الحفظ:
+                      {{ computeDeductions().memDeductions | number : "1.2-2" }}
+                    </td>
+
+                    <td colspan="6" class="totals-counters taj-aggregate">
+                      <div>غنة: {{ totalCounters("tajweed", "ghunna") }}</div>
+                      <div>مد: {{ totalCounters("tajweed", "mad") }}</div>
+                      <div>
+                        مخارج: {{ totalCounters("tajweed", "makharij") }}
+                      </div>
+                      <div>صفات: {{ totalCounters("tajweed", "sifat") }}</div>
+                      <div>أصول: {{ totalCounters("tajweed", "usul") }}</div>
+                      <div>أخرى: {{ totalCounters("tajweed", "other") }}</div>
+                    </td>
+
+                    <td class="deduction red big">
+                      خصم التجويد:
+                      {{ computeDeductions().tajDeductions | number : "1.2-2" }}
+                    </td>
+
+                    <td class="taj-sum big">
+                      حاصل التجويد: {{ tajweedTotalPreview }} / 25
+                    </td>
+
+                    <td class="perf-footer">
+                      الأداء: {{ performanceScorePreview }} / 5
+                    </td>
+
+                    <td class="final-green">
+                      <div>المجموع النهائي</div>
+                      <div class="final-value">{{ currentTotal }} / 100</div>
+                    </td>
+                  </tr>
+
+                  <!-- optional note row -->
+                  <tr>
+                    <td colspan="13" class="notes">
+                      <strong>ملاحظات:</strong> كل خطأ فى التجويد = 0.25 نقطة.
+                      تنبيه = 0.5 ، فتح = 1.5 ، تردد = 0.25.
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- performance selection & actions -->
+            <div class="form-bottom">
+              <div class="perf-select">
+                <label>تقييم الأداء</label>
+                <select
+                  formControlName="performanceLevel"
+                  [disabled]="isConfirmed"
+                >
+                  <option value="متوسط">متوسط - 3/5</option>
+                  <option value="حسن">حسن - 4/5</option>
+                  <option value="ممتاز">ممتاز - 5/5</option>
+                </select>
+              </div>
+
+              <div class="modal-actions">
+                <button
+                  class="btn primary"
+                  type="button"
+                  (click)="submitMark()"
+                  [disabled]="loadingMark || isConfirmed || !markForm.valid"
+                >
+                  حفظ
+                </button>
+                <button
+                  class="btn success"
+                  type="button"
+                  (click)="confirmMark()"
+                  [disabled]="loadingMark || isConfirmed || !markForm.valid"
+                >
+                  تأكيد و قفل
+                </button>
+                <button class="btn" type="button" (click)="closeMarkModal()">
+                  إغلاق
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

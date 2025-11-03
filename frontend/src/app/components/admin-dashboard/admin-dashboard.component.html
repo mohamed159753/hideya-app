@@ -7,27 +7,24 @@
         <p>احصائيات سريعة وروابط سريعة للوصول إلى أجزاء الإدارة.</p>
       </div>
 
+      <!-- users / jury members management -->
+      <app-admin-user *ngIf="currentTab === 'users'"></app-admin-user>
+      <!-- competitors / add -->
+      <app-admin-add *ngIf="currentTab === 'participants'"></app-admin-add>
       <app-admin-competition
         *ngIf="currentTab === 'competitions'"
       ></app-admin-competition>
-
-      <app-admin-category
-        *ngIf="currentTab === 'categories'"
-      ></app-admin-category>
-
-      <!-- competitors / add -->
-      <app-admin-add *ngIf="currentTab === 'participants'"></app-admin-add>
-
       <!-- participation management -->
       <app-admin-participation
         *ngIf="currentTab === 'participations'"
       ></app-admin-participation>
 
-      <!-- jury management / quick access -->
-  <app-jury-dashboard *ngIf="currentTab === 'jury'"></app-jury-dashboard>
+      <app-admin-category
+        *ngIf="currentTab === 'categories'"
+      ></app-admin-category>
 
-  <!-- users / jury members management -->
-  <app-admin-user *ngIf="currentTab === 'users'"></app-admin-user>
+      <!-- jury management / quick access -->
+      <app-jury-dashboard *ngIf="currentTab === 'jury'"></app-jury-dashboard>
     </section>
     <!-- Right-side Tabs (since dir=rtl we use row-reverse) -->
     <aside class="sidebar card">

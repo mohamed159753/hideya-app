@@ -1,0 +1,279 @@
+:root {
+  --primary: #2b6cb0;
+  --success: #2f855a;
+  --yellow: #ffeb99;
+  --light: #f7fafc;
+  --red: #d53f3f;
+  --green: #2f855a;
+  --table-border: #777;
+}
+
+/* general */
+.container {
+  padding: 16px;
+}
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.assignment-row {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+.participants {
+  margin-top: 12px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+.participants ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.participants li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.member {
+  margin-left: 8px;
+  display: inline-block;
+}
+.btn {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+.btn.primary {
+  background: var(--primary);
+  color: #000000ff;
+  border-color: var(--primary);
+}
+.btn.success {
+  background: var(--success);
+  color: #368a60ff;
+  border-color: var(--success);
+}
+.btn.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 24px;
+}
+.modal-content {
+  width: 980px;
+  max-width: 98%;
+  background: #fff;
+  padding: 18px;
+  border-radius: 8px;
+  direction: rtl;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+.modal-content.large {
+  width: 1100px;
+}
+.loading {
+  padding: 12px 0;
+  color: #666;
+}
+
+.participant-title {
+  margin: 6px 0;
+  color: #111;
+}
+.participant-title .muted {
+  color: #666;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+/* top summary */
+.top-summary {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.summary-item {
+  background: #fbfbfb;
+  border: 1px solid #efefef;
+  padding: 8px;
+  border-radius: 6px;
+  min-width: 110px;
+  text-align: center;
+}
+.summary-item .label {
+  font-size: 13px;
+  color: #666;
+}
+.summary-item .value {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.summary-item.total {
+  background: linear-gradient(90deg, #e6fffa, #f0fff4);
+  border-color: #c6f6d5;
+}
+.summary-item.total .big {
+  font-size: 22px;
+}
+
+/* table */
+.score-table-wrap {
+  overflow: auto;
+}
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 1000px;
+}
+.score-table th,
+.score-table td {
+  border: 1px solid #d7d7d7;
+  padding: 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+.score-table thead th {
+  background: #fafafa;
+  font-weight: 700;
+}
+.header-yellow {
+  background: var(--yellow);
+}
+.header-light {
+  background: #fffbe6;
+}
+.sub-col {
+  width: 80px;
+}
+.taj-col {
+  width: 80px;
+}
+.col-left {
+  width: 180px;
+  text-align: right;
+  padding-right: 12px;
+}
+.q-title {
+  font-weight: 700;
+  text-align: right;
+  padding-right: 12px;
+  background: #fff;
+}
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.counter button {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+.counter input {
+  width: 48px;
+  text-align: center;
+  border: 1px solid #ddd;
+  padding: 4px;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+/* special deduction / red numbers */
+.deduction {
+  font-weight: 700;
+}
+.red {
+  color: var(--red);
+}
+.big {
+  font-size: 16px;
+}
+.taj-sum {
+  background: #fffde7;
+  font-weight: 700;
+}
+.row-sum {
+  background: #f8f9fb;
+}
+.perf-cell {
+  background: #fff;
+}
+
+/* footer totals row */
+.totals-row td {
+  background: #f3f6f7;
+  font-weight: 700;
+}
+.final-green {
+  background: linear-gradient(90deg, #b6f0b0, #7de090);
+  color: #033;
+  font-weight: 800;
+  padding: 10px;
+}
+.final-green .final-value {
+  font-size: 20px;
+}
+
+/* notes */
+.notes {
+  padding: 10px;
+  background: #fff5f5;
+  color: #333;
+  text-align: right;
+  border-top: 1px solid #eee;
+}
+
+/* bottom form & actions */
+.form-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.perf-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.perf-select select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .modal-content.large {
+    width: 100%;
+  }
+  .score-table {
+    font-size: 12px;
+  }
+}
