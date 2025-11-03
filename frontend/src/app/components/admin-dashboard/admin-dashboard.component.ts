@@ -21,7 +21,8 @@ export class AdminDashboardComponent {
     { id: 'competitions', label: 'المسابقات' },
     { id: 'categories', label: 'الفئات' },
     { id: 'participants', label: 'المتسابقون' },
-    { id: 'users', label: 'المستخدمون' }
+    { id: 'users', label: 'المستخدمون' },
+    { id: 'participations', label: 'المشاركات' }
   ];
 
   currentTab = 'overview';
