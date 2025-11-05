@@ -327,4 +327,20 @@ export class AdminCompetitionComponent implements OnInit {
   formatDate(date: string): string {
     return new Date(date).toLocaleString('ar-TN');
   }
+
+  onCategoryCheckboxChange(event: any) {
+  const categoryId = event.target.value;
+  const checked = event.target.checked;
+  const current = this.competitionForm.value.categoryIds as string[];
+
+  if (checked) {
+    this.competitionForm.patchValue({
+      categoryIds: [...current, categoryId]
+    });
+  } else {
+    this.competitionForm.patchValue({
+      categoryIds: current.filter(id => id !== categoryId)
+    });
+  }
+}
 }

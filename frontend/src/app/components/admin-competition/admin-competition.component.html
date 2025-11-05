@@ -20,9 +20,17 @@
 
       <div class="form-group">
         <label>الفئات</label>
-        <select formControlName="categoryIds" multiple>
-          <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
-        </select>
+        <div *ngFor="let cat of categories">
+          <label style="display: flex; align-items: center; gap: 6px;">
+          <input
+          type="checkbox"
+          [value]="cat._id"
+          (change)="onCategoryCheckboxChange($event)"
+          [checked]="competitionForm.value.categoryIds.includes(cat._id)"
+          />
+            {{ cat.name }}
+          </label>
+        </div>
       </div>
 
       <div class="form-group">
