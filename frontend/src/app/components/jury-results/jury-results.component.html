@@ -1,0 +1,221 @@
+<div style="
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #ffffff;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+">
+  <!-- Header -->
+  <div style="
+    background: linear-gradient(135deg, #1b5e20, #2d8c4a);
+    color: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    text-align: center;
+  ">
+    <h1 style="margin: 0 0 16px 0; font-size: 32px; font-weight: 600;">
+      النتائج النهائية
+    </h1>
+    <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+      <div>
+        <div style="font-size: 14px; opacity: 0.9;">المسابقة</div>
+        <div style="font-size: 18px; font-weight: 600;">{{ assignment?.competitionId?.title }}</div>
+      </div>
+      <div>
+        <div style="font-size: 14px; opacity: 0.9;">الفئة</div>
+        <div style="font-size: 18px; font-weight: 600;">{{ assignment?.categoryId?.name }}</div>
+      </div>
+      <div>
+        <div style="font-size: 14px; opacity: 0.9;">عدد المشاركين</div>
+        <div style="font-size: 18px; font-weight: 600;">{{ results.length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <button style="
+      background: #666666;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    " (click)="goBack()">
+      ← العودة للوحة التحكم
+    </button>
+
+    <button style="
+      background: #1b5e20;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    " 
+    (click)="exportToExcel()"
+    [disabled]="exportLoading">
+      {{ exportLoading ? 'جاري التصدير...' : '📊 تصدير النتائج' }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" style="text-align: center; padding: 60px; color: #666666;">
+    <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+    <h3>جاري تحميل النتائج...</h3>
+    <p>يرجى الانتظار أثناء حساب النتائج النهائية</p>
+  </div>
+
+  <!-- Results Table -->
+  <div *ngIf="!loading && results.length > 0" style="
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  ">
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              الترتيب
+            </th>
+            <th style="padding: 16px; text-align: right; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              اسم المشارك
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              المتوسط النهائي
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              حاصل الحفظ
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              حاصل التجويد
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              تقييم الأداء
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              عدد المقيمين
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              الحالة
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let result of results; let i = index" 
+              [style.background]="getMedalColor(i + 1)">
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0; font-weight: 700;">
+              <div style="
+                width: 40px;
+                height: 40px;
+                background: #1b5e20;
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                font-size: 16px;
+              ">
+                {{ i + 1 }}
+              </div>
+            </td>
+            <td style="padding: 16px; text-align: right; border-bottom: 1px solid #e0e0e0; font-weight: 600;">
+              {{ result.competitorId?.firstName }} {{ result.competitorId?.lastName }}
+            </td>
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0; font-size: 18px; font-weight: 700; color: #1b5e20;">
+              {{ result.finalScore | number:'1.2-2' }}
+            </td>
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+              {{ result.memorizationScore | number:'1.2-2' }}
+            </td>
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+              {{ result.tajweedScore | number:'1.2-2' }}
+            </td>
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+              {{ result.performanceScore | number:'1.2-2' }}
+            </td>
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+              {{ result.juryCount }}
+            </td>
+            <td style="padding: 16px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+              <span [style]="{
+                'background': result.status === 'مكتمل' ? '#4caf50' : '#ff9800',
+                'color': 'white',
+                'padding': '4px 12px',
+                'border-radius': '20px',
+                'font-size': '12px',
+                'font-weight': '500'
+              }">
+                {{ result.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && results.length === 0" style="
+    text-align: center;
+    padding: 60px 20px;
+    color: #666666;
+    background: #f9f9f9;
+    border-radius: 12px;
+  ">
+    <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📊</div>
+    <h3>لا توجد نتائج متاحة</h3>
+    <p>لم يتم حساب النتائج النهائية بعد أو لا توجد علامات مسجلة</p>
+  </div>
+
+  <!-- Summary -->
+  <div *ngIf="!loading && results.length > 0" style="
+    margin-top: 24px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-right: 4px solid #2d8c4a;
+  ">
+    <h4 style="margin: 0 0 12px 0; color: #1b5e20;">ملخص النتائج</h4>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+      <div>
+        <div style="font-size: 12px; color: #666666;">أعلى درجة</div>
+        <div style="font-size: 20px; font-weight: 700; color: #1b5e20;">
+          {{ results[0]?.finalScore | number:'1.2-2' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 12px; color: #666666;">أقل درجة</div>
+        <div style="font-size: 20px; font-weight: 700; color: #d32f2f;">
+          {{ results[results.length - 1]?.finalScore | number:'1.2-2' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 12px; color: #666666;">المتوسط العام</div>
+        <div style="font-size: 20px; font-weight: 700; color: #1976d2;">
+          {{ calculateAverage() | number:'1.2-2' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 12px; color: #666666;">تاريخ الحساب</div>
+        <div style="font-size: 14px; font-weight: 600; color: #666666;">
+          {{ getCurrentDate() }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
