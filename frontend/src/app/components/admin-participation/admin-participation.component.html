@@ -10,21 +10,36 @@
           <option *ngFor="let comp of competitions" [value]="comp._id">{{ comp.title }}</option>
         </select>
       </div>
+
       <!-- Category -->
       <div class="form-group" *ngIf="categories?.length">
         <label>اختر الفئة</label>
-        <select formControlName="categoryId" required>
+        <select formControlName="categoryId" (change)="onCategoryChange()" required>
           <option value="" disabled>اختر الفئة</option>
           <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
         </select>
       </div>
+
+      <!-- NEW: Subcategory -->
+      <div class="form-group" *ngIf="subCategoryOptions?.length">
+        <label>اختر الفئة الفرعية</label>
+        <select formControlName="subCategory" required>
+          <option value="" disabled>اختر الفئة الفرعية</option>
+          <option *ngFor="let sc of subCategoryOptions" [value]="sc.value">
+            {{ sc.label }}
+          </option>
+        </select>
+        <small class="hint">سيتم تصفية المتسابقين حسب الفئة الفرعية المختارة</small>
+      </div>
+
       <!-- Competitors -->
-      <div class="form-group">
+      <div class="form-group" *ngIf="participationForm.get('subCategory')?.value">
         <label>المتسابقون</label>
         <button type="button" class="btn secondary" (click)="openModal()">
           اختر المتسابقين ({{ participationForm.get('competitorIds')?.value?.length || 0 }} مختارين)
         </button>
       </div>
+
       <div class="form-buttons">
         <button type="submit" class="btn primary" [disabled]="participationForm.invalid">تسجيل</button>
       </div>
@@ -41,6 +56,7 @@
             <th>المتسابق</th>
             <th>المسابقة</th>
             <th>الفئة</th>
+            <th>الفئة الفرعية</th>
             <th>إجراءات</th>
           </tr>
         </thead>
@@ -49,6 +65,7 @@
             <td>{{ p.competitorId?.firstName }} {{ p.competitorId?.lastName }}</td>
             <td>{{ p.competitionId?.title }}</td>
             <td>{{ p.categoryId?.name }}</td>
+            <td>{{ formatSubCategory(p.subCategory) }}</td>
             <td class="actions">
               <button class="btn danger small" (click)="onDelete(p._id)">حذف</button>
             </td>
@@ -66,17 +83,37 @@
   <div class="modal" *ngIf="modalOpen">
     <div class="modal-content">
       <h2>اختر المتسابقين</h2>
+      <p class="info-text">
+        <strong>الفئة الفرعية:</strong> 
+        {{ formatSubCategory(participationForm.get('subCategory')?.value) }}
+      </p>
+      <p class="info-text">
+        المتسابقون المتاحون: {{ getFilteredCompetitors().length }}
+      </p>
+      
       <div class="competitor-list">
-        <label *ngFor="let comp of competitors">
+        <div *ngIf="getFilteredCompetitors().length === 0" class="empty-message">
+          لا يوجد متسابقون مؤهلون لهذه الفئة الفرعية
+          <br>
+          <small>تحقق من أن لديك متسابقين بالجنس/العمر المناسب</small>
+        </div>
+        
+        <label *ngFor="let comp of getFilteredCompetitors()">
           <input type="checkbox"
                  [checked]="selectedCompetitors.includes(comp._id)"
                  (change)="toggleCompetitor(comp._id)">
-          {{ comp.firstName }} {{ comp.lastName }} - {{ comp.branch }}
+          {{ comp.firstName }} {{ comp.lastName }} - 
+          {{ getBranchName(comp.branch) }} -
+          العمر: {{ comp.age }} - 
+          {{ comp.gender }}
         </label>
       </div>
+      
       <div class="modal-buttons">
         <button class="btn secondary" (click)="closeModal()">إلغاء</button>
-        <button class="btn primary" (click)="confirmSelection()">تأكيد</button>
+        <button class="btn primary" (click)="confirmSelection()" [disabled]="selectedCompetitors.length === 0">
+          تأكيد ({{ selectedCompetitors.length }})
+        </button>
       </div>
     </div>
   </div>

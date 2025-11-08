@@ -1,133 +1,93 @@
-const express = require("express");
+// routes/participation.js (or similar)
+const express = require('express');
 const router = express.Router();
-const Participation = require("../models/Participation");
+const Participation = require('../models/Participation');
 
-// GET all participations
-router.get("/", async (req, res, next) => {
+// Register multiple competitors
+router.post('/register-multiple', async (req, res) => {
+  try {
+    const { competitionId, categoryId, subCategory, competitorIds } = req.body;
+
+    if (!competitionId || !categoryId || !subCategory || !competitorIds || !Array.isArray(competitorIds)) {
+      return res.status(400).json({ 
+        message: 'Missing required fields: competitionId, categoryId, subCategory, competitorIds' 
+      });
+    }
+
+    const participations = [];
+    const errors = [];
+
+    for (const competitorId of competitorIds) {
+      try {
+        // Check if participation already exists
+        const existing = await Participation.findOne({
+          competitorId,
+          competitionId,
+          subCategory
+        });
+
+        if (existing) {
+          errors.push({ 
+            competitorId, 
+            error: 'Competitor already registered for this subcategory' 
+          });
+          continue;
+        }
+
+        const participation = new Participation({
+          competitorId,
+          competitionId,
+          categoryId,
+          subCategory
+        });
+
+        await participation.save();
+        participations.push(participation);
+      } catch (err) {
+        errors.push({ competitorId, error: err.message });
+      }
+    }
+
+    res.status(201).json({
+      message: `Registered ${participations.length} participants`,
+      participations,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (error) {
+    console.error('Error registering participants:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get all participations (with population)
+router.get('/', async (req, res) => {
   try {
     const participations = await Participation.find()
-      .populate("competitorId", "firstName lastName")
-      .populate({
-        path: "competitionCategoryId",
-        populate: [
-          { path: "categoryId", select: "name" },
-          { path: "ageGroupId", select: "name from to" }
-        ]
-      })
-      .populate("competitionId", "title type");
+      .populate('competitorId')
+      .populate('competitionId')
+      .populate('categoryId')
+      .sort({ createdAt: -1 });
 
     res.json(participations);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    console.error('Error fetching participations:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// GET participations for one competition
-router.get("/competition/:competitionId", async (req, res, next) => {
+// Delete participation
+router.delete('/:id', async (req, res) => {
   try {
-    const participations = await Participation.find({
-      competitionId: req.params.competitionId,
-    })
-      .populate("competitorId", "firstName lastName branch")
-      .populate({
-        path: "competitionCategoryId",
-        populate: [
-          { path: "categoryId", select: "name" },
-          { path: "ageGroupId", select: "name from to" }
-        ]
-      });
+    const participation = await Participation.findByIdAndDelete(req.params.id);
+    
+    if (!participation) {
+      return res.status(404).json({ message: 'Participation not found' });
+    }
 
-    res.json(participations);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// POST create new participation
-router.post("/", async (req, res, next) => {
-  try {
-    const { competitorId, competitionId, competitionCategoryId } = req.body;
-
-    const participation = new Participation({
-      competitorId,
-      competitionId,
-      competitionCategoryId
-    });
-
-    await participation.save();
-    await participation.populate([
-      { path: "competitorId", select: "firstName lastName" },
-      { path: "competitionId", select: "title" },
-      {
-        path: "competitionCategoryId",
-        populate: [
-          { path: "categoryId", select: "name" },
-          { path: "ageGroupId", select: "name from to" }
-        ]
-      }
-    ]);
-
-    res.status(201).json(participation);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// PUT update participation
-router.put("/:id", async (req, res, next) => {
-  try {
-    const updated = await Participation.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    )
-      .populate("competitorId", "firstName lastName")
-      .populate("competitionId", "title")
-      .populate({
-        path: "competitionCategoryId",
-        populate: [
-          { path: "categoryId", select: "name" },
-          { path: "ageGroupId", select: "name from to" }
-        ]
-      });
-
-    res.json(updated);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// DELETE participation
-router.delete("/:id", async (req, res, next) => {
-  try {
-    await Participation.findByIdAndDelete(req.params.id);
-    res.json({ message: "Participation deleted" });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// ✅ Register Multiple Participants
-router.post("/register-multiple", async (req, res) => {
-  const { competitionId, competitionCategoryId, competitorIds } = req.body;
-
-  if (!competitionId || !competitionCategoryId || !competitorIds?.length) {
-    return res
-      .status(400)
-      .json({ message: "Competition, competitionCategoryId and competitors are required" });
-  }
-
-  try {
-    const participations = competitorIds.map(id => ({
-      competitionId,
-      competitionCategoryId,
-      competitorId: id
-    }));
-
-    const result = await Participation.insertMany(participations);
-    res.status(201).json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: 'Participation deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting participation:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

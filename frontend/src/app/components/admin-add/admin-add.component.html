@@ -32,6 +32,21 @@
           </span>
         </div>
         
+        <!-- ✅ NEW: Gender field -->
+        <div class="form-group">
+          <label>الجنس *</label>
+          <select formControlName="gender" required>
+            <option value="" disabled selected>اختر الجنس</option>
+            <option value="ذكر">ذكر</option>
+            <option value="أنثى">أنثى</option>
+          </select>
+          <span class="error" *ngIf="competitorForm.get('gender')?.invalid && competitorForm.get('gender')?.touched">
+            الجنس مطلوب
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
           <label>الصنف *</label>
           <input type="text" formControlName="classLevel" placeholder="مثال: من 9---12" />
@@ -39,44 +54,42 @@
             الصنف مطلوب
           </span>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label>الفرع (المدرسة) *</label>
-        <select formControlName="branch" required>
-          <option value="" disabled selected>اختر الفرع</option>
-          <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
-        </select>
-        <span class="error" *ngIf="competitorForm.get('branch')?.invalid && competitorForm.get('branch')?.touched">
-          الفرع مطلوب
-        </span>
+        <div class="form-group">
+          <label>الفرع (المدرسة) *</label>
+          <select formControlName="branch" required>
+            <option value="" disabled selected>اختر الفرع</option>
+            <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
+          </select>
+          <span class="error" *ngIf="competitorForm.get('branch')?.invalid && competitorForm.get('branch')?.touched">
+            الفرع مطلوب
+          </span>
+        </div>
       </div>
 
       <div class="form-row">
-  <div class="form-group">
-    <label>من سورة *</label>
-    <select formControlName="surahFrom" required>
-      <option value="" disabled selected>اختر السورة الأولى</option>
-      <option *ngFor="let surah of surahs" [value]="surah">{{ surah }}</option>
-    </select>
-    <span class="error" *ngIf="competitorForm.get('surahFrom')?.invalid && competitorForm.get('surahFrom')?.touched">
-      السورة الأولى مطلوبة
-    </span>
-  </div>
+        <div class="form-group">
+          <label>من سورة *</label>
+          <select formControlName="surahFrom" required>
+            <option value="" disabled selected>اختر السورة الأولى</option>
+            <option *ngFor="let surah of surahs" [value]="surah">{{ surah }}</option>
+          </select>
+          <span class="error" *ngIf="competitorForm.get('surahFrom')?.invalid && competitorForm.get('surahFrom')?.touched">
+            السورة الأولى مطلوبة
+          </span>
+        </div>
 
-  <div class="form-group">
-    <label>إلى سورة *</label>
-    <select formControlName="surahTo" required>
-      <option value="" disabled selected>اختر السورة الأخيرة</option>
-      <option *ngFor="let surah of surahs" [value]="surah">{{ surah }}</option>
-    </select>
-    <span class="error" *ngIf="competitorForm.get('surahTo')?.invalid && competitorForm.get('surahTo')?.touched">
-      السورة الأخيرة مطلوبة
-    </span>
-  </div>
-</div>
-
-      
+        <div class="form-group">
+          <label>إلى سورة *</label>
+          <select formControlName="surahTo" required>
+            <option value="" disabled selected>اختر السورة الأخيرة</option>
+            <option *ngFor="let surah of surahs" [value]="surah">{{ surah }}</option>
+          </select>
+          <span class="error" *ngIf="competitorForm.get('surahTo')?.invalid && competitorForm.get('surahTo')?.touched">
+            السورة الأخيرة مطلوبة
+          </span>
+        </div>
+      </div>
 
       <div class="form-buttons">
         <button type="submit" class="btn primary" [disabled]="competitorForm.invalid">
@@ -96,6 +109,7 @@
           <tr>
             <th>الاسم الكامل</th>
             <th>العمر</th>
+            <th>الجنس</th>
             <th>الصنف</th>
             <th>الفرع</th>
             <th>مقدار الحفظ</th>
@@ -106,8 +120,9 @@
           <tr *ngFor="let c of competitors">
             <td>{{ c.firstName }} {{ c.lastName }}</td>
             <td>{{ c.age }}</td>
+            <td>{{ c.gender }}</td>
             <td>{{ c.classLevel }}</td>
-            <td>{{ c.branch }}</td>
+            <td>{{ getBranchName(c.branch) }}</td>
             <td>{{ c.surahRange?.from }} - {{ c.surahRange?.to }}</td>
             <td>
               <button class="btn small primary" (click)="edit(c)">تعديل</button>
@@ -115,7 +130,7 @@
             </td>
           </tr>
           <tr *ngIf="competitors.length === 0">
-            <td colspan="6" style="text-align: center;">لا توجد بيانات</td>
+            <td colspan="7" style="text-align: center;">لا توجد بيانات</td>
           </tr>
         </tbody>
       </table>

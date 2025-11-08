@@ -23,123 +23,122 @@ export class AdminAddComponent {
   // For dropdowns
   categories: any[] = [];
   branches: any[] = [];
-surahs: string[] = [
-  'الفاتحة',
-  'البقرة',
-  'آل عمران',
-  'النساء',
-  'المائدة',
-  'الأنعام',
-  'الأعراف',
-  'الأنفال',
-  'التوبة',
-  'يونس',
-  'هود',
-  'يوسف',
-  'الرعد',
-  'إبراهيم',
-  'الحجر',
-  'النحل',
-  'الإسراء',
-  'الكهف',
-  'مريم',
-  'طه',
-  'الأنبياء',
-  'الحج',
-  'المؤمنون',
-  'النور',
-  'الفرقان',
-  'الشعراء',
-  'النمل',
-  'القصص',
-  'العنكبوت',
-  'الروم',
-  'لقمان',
-  'السجدة',
-  'الأحزاب',
-  'سبأ',
-  'فاطر',
-  'يس',
-  'الصافات',
-  'ص',
-  'الزمر',
-  'غافر',
-  'فصلت',
-  'الشورى',
-  'الزخرف',
-  'الدخان',
-  'الجاثية',
-  'الأحقاف',
-  'محمد',
-  'الفتح',
-  'الحجرات',
-  'ق',
-  'الذاريات',
-  'الطور',
-  'النجم',
-  'القمر',
-  'الرحمن',
-  'الواقعة',
-  'الحديد',
-  'المجادلة',
-  'الحشر',
-  'الممتحنة',
-  'الصف',
-  'الجمعة',
-  'المنافقون',
-  'التغابن',
-  'الطلاق',
-  'التحريم',
-  'الملك',
-  'القلم',
-  'الحاقة',
-  'المعارج',
-  'نوح',
-  'الجن',
-  'المزمل',
-  'المدثر',
-  'القيامة',
-  'الإنسان',
-  'المرسلات',
-  'النبأ',
-  'النازعات',
-  'عبس',
-  'التكوير',
-  'الانفطار',
-  'المطففين',
-  'الانشقاق',
-  'البروج',
-  'الطارق',
-  'الأعلى',
-  'الغاشية',
-  'الفجر',
-  'البلد',
-  'الشمس',
-  'الليل',
-  'الضحى',
-  'الشرح',
-  'التين',
-  'العلق',
-  'القدر',
-  'البينة',
-  'الزلزلة',
-  'العاديات',
-  'القارعة',
-  'التكاثر',
-  'العصر',
-  'الهمزة',
-  'الفيل',
-  'قريش',
-  'الماعون',
-  'الكوثر',
-  'الكافرون',
-  'النصر',
-  'المسد',
-  'الإخلاص',
-  'الفلق',
-  'الناس'
-];
-
+  surahs: string[] = [
+    'الفاتحة',
+    'البقرة',
+    'آل عمران',
+    'النساء',
+    'المائدة',
+    'الأنعام',
+    'الأعراف',
+    'الأنفال',
+    'التوبة',
+    'يونس',
+    'هود',
+    'يوسف',
+    'الرعد',
+    'إبراهيم',
+    'الحجر',
+    'النحل',
+    'الإسراء',
+    'الكهف',
+    'مريم',
+    'طه',
+    'الأنبياء',
+    'الحج',
+    'المؤمنون',
+    'النور',
+    'الفرقان',
+    'الشعراء',
+    'النمل',
+    'القصص',
+    'العنكبوت',
+    'الروم',
+    'لقمان',
+    'السجدة',
+    'الأحزاب',
+    'سبأ',
+    'فاطر',
+    'يس',
+    'الصافات',
+    'ص',
+    'الزمر',
+    'غافر',
+    'فصلت',
+    'الشورى',
+    'الزخرف',
+    'الدخان',
+    'الجاثية',
+    'الأحقاف',
+    'محمد',
+    'الفتح',
+    'الحجرات',
+    'ق',
+    'الذاريات',
+    'الطور',
+    'النجم',
+    'القمر',
+    'الرحمن',
+    'الواقعة',
+    'الحديد',
+    'المجادلة',
+    'الحشر',
+    'الممتحنة',
+    'الصف',
+    'الجمعة',
+    'المنافقون',
+    'التغابن',
+    'الطلاق',
+    'التحريم',
+    'الملك',
+    'القلم',
+    'الحاقة',
+    'المعارج',
+    'نوح',
+    'الجن',
+    'المزمل',
+    'المدثر',
+    'القيامة',
+    'الإنسان',
+    'المرسلات',
+    'النبأ',
+    'النازعات',
+    'عبس',
+    'التكوير',
+    'الانفطار',
+    'المطففين',
+    'الانشقاق',
+    'البروج',
+    'الطارق',
+    'الأعلى',
+    'الغاشية',
+    'الفجر',
+    'البلد',
+    'الشمس',
+    'الليل',
+    'الضحى',
+    'الشرح',
+    'التين',
+    'العلق',
+    'القدر',
+    'البينة',
+    'الزلزلة',
+    'العاديات',
+    'القارعة',
+    'التكاثر',
+    'العصر',
+    'الهمزة',
+    'الفيل',
+    'قريش',
+    'الماعون',
+    'الكوثر',
+    'الكافرون',
+    'النصر',
+    'المسد',
+    'الإخلاص',
+    'الفلق',
+    'الناس'
+  ];
 
   constructor(
     private competitorService: AdminAddService,
@@ -151,11 +150,12 @@ surahs: string[] = [
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       age: ['', [Validators.required, Validators.min(5)]],
+      gender: ['', Validators.required], // ✅ ADDED
       classLevel: ['', Validators.required],
       branch: ['', Validators.required],
       surahFrom: ['', Validators.required],
       surahTo: ['', Validators.required],
-      categoryIds: [[]]  // Array of category IDs
+      categoryIds: [[]]
     });
   }
 
@@ -171,15 +171,10 @@ surahs: string[] = [
     });
   }
 
-  
-
   loadCategories() {
     this.categoryService.getAll().subscribe(data => {
       this.categories = data;
     });
-
-    
-   
   }
 
   loadBranches() {
@@ -193,18 +188,17 @@ surahs: string[] = [
 
     const formValue = this.competitorForm.value;
     
-    // Format the data to match the Mongoose schema
     const competitor: any = {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       age: formValue.age,
+      gender: formValue.gender, // ✅ ADDED
       classLevel: formValue.classLevel,
       branch: formValue.branch,
       surahRange: {
         from: formValue.surahFrom,
         to: formValue.surahTo
-      },
-      
+      }
     };
 
     if (this.editMode && this.currentCompetitorId !== null) {
@@ -224,16 +218,15 @@ surahs: string[] = [
     this.editMode = true;
     this.currentCompetitorId = competitor._id;
     
-    // Flatten the nested structure for the form
     this.competitorForm.patchValue({
       firstName: competitor.firstName,
       lastName: competitor.lastName,
       age: competitor.age,
+      gender: competitor.gender, // ✅ ADDED
       classLevel: competitor.classLevel,
       branch: competitor.branch,
       surahFrom: competitor.surahRange?.from || '',
       surahTo: competitor.surahRange?.to || '',
-      competitionId: competitor.competitionId,
       categoryIds: competitor.categoryIds || []
     });
   }
@@ -250,5 +243,20 @@ surahs: string[] = [
     this.competitorForm.reset();
     this.editMode = false;
     this.currentCompetitorId = null;
+  }
+
+  // ✅ Helper method to get branch name
+  getBranchName(branchData: any): string {
+    if (!branchData) return '-';
+    // If it's already populated (object with name)
+    if (typeof branchData === 'object' && branchData.name) {
+      return branchData.name;
+    }
+    // If it's just an ID, try to find it in branches array
+    if (typeof branchData === 'string') {
+      const branch = this.branches.find(b => b._id === branchData);
+      return branch ? branch.name : branchData;
+    }
+    return '-';
   }
 }
