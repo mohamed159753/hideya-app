@@ -47,19 +47,12 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label>الصنف *</label>
-          <input type="text" formControlName="classLevel" placeholder="مثال: من 9---12" />
-          <span class="error" *ngIf="competitorForm.get('classLevel')?.invalid && competitorForm.get('classLevel')?.touched">
-            الصنف مطلوب
-          </span>
-        </div>
 
         <div class="form-group">
           <label>الفرع (المدرسة) *</label>
           <select formControlName="branch" required>
             <option value="" disabled selected>اختر الفرع</option>
-            <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
+            <option *ngFor="let b of branches" [value]="b._id">{{ b.name }}</option>
           </select>
           <span class="error" *ngIf="competitorForm.get('branch')?.invalid && competitorForm.get('branch')?.touched">
             الفرع مطلوب
@@ -110,7 +103,6 @@
             <th>الاسم الكامل</th>
             <th>العمر</th>
             <th>الجنس</th>
-            <th>الصنف</th>
             <th>الفرع</th>
             <th>مقدار الحفظ</th>
             <th>الإجراءات</th>
@@ -121,7 +113,6 @@
             <td>{{ c.firstName }} {{ c.lastName }}</td>
             <td>{{ c.age }}</td>
             <td>{{ c.gender }}</td>
-            <td>{{ c.classLevel }}</td>
             <td>{{ getBranchName(c.branch) }}</td>
             <td>{{ c.surahRange?.from }} - {{ c.surahRange?.to }}</td>
             <td>

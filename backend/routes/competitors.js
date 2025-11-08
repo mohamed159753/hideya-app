@@ -9,7 +9,6 @@ const validateCompetitor = [
   body('firstName').trim().notEmpty().withMessage('First name is required'),
   body('lastName').trim().notEmpty().withMessage('Last name is required'),
   body('age').isInt({ min: 5, max: 100 }).withMessage('Age must be between 5 and 100'),
-  body('classLevel').notEmpty().withMessage('Class level is required'),
   body('branch')
     .trim()
     .notEmpty()
