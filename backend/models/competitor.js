@@ -6,8 +6,16 @@ const competitorSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   age: { type: Number, required: true },
 
+  gender: { type: String, enum: ["ذكر", "أنثى"], required: true },
+
+
   classLevel: { type: String, required: true },
-  branch: { type: String, required: true },
+
+  branch: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Branch",
+  required: true
+},
 
   surahRange: {
     from: { type: String, required: true },

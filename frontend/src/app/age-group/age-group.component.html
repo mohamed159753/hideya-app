@@ -1,0 +1,55 @@
+<div class="container">
+
+  <h2>إدارة الأصناف العمرية</h2>
+
+  <div class="branch-input-group">
+    <input 
+      type="text" 
+      placeholder="أدخل صنف لجديد"
+      [(ngModel)]="newGroupAge"
+    >
+
+    <input 
+      type="text" 
+      placeholder="من سن"
+      [(ngModel)]="from"
+    >
+
+    <input 
+      type="text" 
+      placeholder="إلى سن"
+      [(ngModel)]="to"
+    >
+
+    <button class="primary" (click)="addAgeGroup()">إضافة</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>الأصناف العمرية</th>
+          <th style="width: 120px;">الخيارات</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let b of ageGroups">
+          <td>{{ b.name }}</td>
+          <td class="actions">
+            <button class="danger small" (click)="deleteAgeGroup(b._id)">
+              حذف
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="ageGroups.length === 0">
+          <td colspan="2" class="empty-message">
+            لا توجد اصناف عمرية مضافة بعد
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -7,8 +7,15 @@ router.get("/", async (req, res, next) => {
   try {
     const participations = await Participation.find()
       .populate("competitorId", "firstName lastName")
-      .populate("competitionId", "title type")
-      .populate("categoryId", "name");
+      .populate({
+        path: "competitionCategoryId",
+        populate: [
+          { path: "categoryId", select: "name" },
+          { path: "ageGroupId", select: "name from to" }
+        ]
+      })
+      .populate("competitionId", "title type");
+
     res.json(participations);
   } catch (err) {
     next(err);
@@ -22,7 +29,14 @@ router.get("/competition/:competitionId", async (req, res, next) => {
       competitionId: req.params.competitionId,
     })
       .populate("competitorId", "firstName lastName branch")
-      .populate("categoryId", "name");
+      .populate({
+        path: "competitionCategoryId",
+        populate: [
+          { path: "categoryId", select: "name" },
+          { path: "ageGroupId", select: "name from to" }
+        ]
+      });
+
     res.json(participations);
   } catch (err) {
     next(err);
@@ -32,28 +46,51 @@ router.get("/competition/:competitionId", async (req, res, next) => {
 // POST create new participation
 router.post("/", async (req, res, next) => {
   try {
-    const participation = new Participation(req.body);
+    const { competitorId, competitionId, competitionCategoryId } = req.body;
+
+    const participation = new Participation({
+      competitorId,
+      competitionId,
+      competitionCategoryId
+    });
+
     await participation.save();
     await participation.populate([
       { path: "competitorId", select: "firstName lastName" },
       { path: "competitionId", select: "title" },
-      { path: "categoryId", select: "name" },
+      {
+        path: "competitionCategoryId",
+        populate: [
+          { path: "categoryId", select: "name" },
+          { path: "ageGroupId", select: "name from to" }
+        ]
+      }
     ]);
+
     res.status(201).json(participation);
   } catch (err) {
     next(err);
   }
 });
 
-// PUT update participation status or notes
+// PUT update participation
 router.put("/:id", async (req, res, next) => {
   try {
-    const updated = await Participation.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    })
+    const updated = await Participation.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    )
       .populate("competitorId", "firstName lastName")
       .populate("competitionId", "title")
-      .populate("categoryId", "name");
+      .populate({
+        path: "competitionCategoryId",
+        populate: [
+          { path: "categoryId", select: "name" },
+          { path: "ageGroupId", select: "name from to" }
+        ]
+      });
+
     res.json(updated);
   } catch (err) {
     next(err);
@@ -70,17 +107,20 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.post('/register-multiple', async (req, res) => {
-  const { competitionId, categoryId, competitorIds } = req.body;
+// ✅ Register Multiple Participants
+router.post("/register-multiple", async (req, res) => {
+  const { competitionId, competitionCategoryId, competitorIds } = req.body;
 
-  if (!competitionId || !categoryId || !competitorIds?.length) {
-    return res.status(400).json({ message: 'Competition, category and competitor IDs are required' });
+  if (!competitionId || !competitionCategoryId || !competitorIds?.length) {
+    return res
+      .status(400)
+      .json({ message: "Competition, competitionCategoryId and competitors are required" });
   }
 
   try {
     const participations = competitorIds.map(id => ({
       competitionId,
-      categoryId,
+      competitionCategoryId,
       competitorId: id
     }));
 

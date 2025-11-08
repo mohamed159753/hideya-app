@@ -8,6 +8,10 @@ const competitionRoutes = require('./routes/competitions');
 const categoryRoutes = require('./routes/categories');
 const competitorRoutes = require("./routes/competitors");
 const participationRoutes = require('./routes/participations'); // your router file
+const branchRoutes = require("./routes/branchRoutes");
+const groupAgeRoutes = require("./routes/ageGroupRoutes");
+const competitionCategoryRoutes = require("./routes/competitionCategories");
+
 
 const app = express();
 app.use(cors());
@@ -24,6 +28,10 @@ const juryRoutes = require('./routes/juryAssignments');
 app.use('/api/jury-assignments', juryRoutes);
 const marksRoutes = require('./routes/marks');
 app.use('/api/marks', marksRoutes);
+app.use("/api/branches", branchRoutes);
+app.use("/api/age-groups", groupAgeRoutes);
+app.use("/api/competition-categories", competitionCategoryRoutes);
+
 
 
 

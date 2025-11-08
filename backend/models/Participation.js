@@ -12,8 +12,8 @@ const participationSchema = new mongoose.Schema({
     ref: "Competition", 
     required: true 
   },
-  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true }, // single category
-
+  competitionCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'CompetitionCategory', required: true },
+  
   // Optional fields
   score: { type: Number },
   rank: { type: Number },

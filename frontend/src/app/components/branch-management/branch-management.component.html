@@ -1,0 +1,43 @@
+<div class="container">
+
+  <h2>إدارة الفروع</h2>
+
+  <div class="branch-input-group">
+    <input 
+      type="text" 
+      placeholder="أدخل اسم الفرع الجديد"
+      [(ngModel)]="newBranchName"
+    >
+
+    <button class="primary" (click)="addBranch()">إضافة</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>الفرع</th>
+          <th style="width: 120px;">الخيارات</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let b of branches">
+          <td>{{ b.name }}</td>
+          <td class="actions">
+            <button class="danger small" (click)="deleteBranch(b._id)">
+              حذف
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="branches.length === 0">
+          <td colspan="2" class="empty-message">
+            لا توجد فروع مضافة بعد
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -4,6 +4,7 @@ import { AdminAddService } from '../../services/admin-add.service';
 import { CommonModule } from '@angular/common';
 import { CompetitionService } from '../../services/competition.service';
 import { CategoryService } from '../../services/category.service';
+import { BranchService } from '../../services/branch.service';
 
 @Component({
   selector: 'app-admin-add',
@@ -21,6 +22,7 @@ export class AdminAddComponent {
 
   // For dropdowns
   categories: any[] = [];
+  branches: any[] = [];
 surahs: string[] = [
   'الفاتحة',
   'البقرة',
@@ -142,6 +144,7 @@ surahs: string[] = [
   constructor(
     private competitorService: AdminAddService,
     private categoryService: CategoryService,
+    private branchService: BranchService,
     private fb: FormBuilder
   ) {
     this.competitorForm = this.fb.group({
@@ -159,6 +162,7 @@ surahs: string[] = [
   ngOnInit(): void {
     this.loadCompetitors();
     this.loadCategories();
+    this.loadBranches();
   }
 
   loadCompetitors() {
@@ -176,6 +180,12 @@ surahs: string[] = [
 
     
    
+  }
+
+  loadBranches() {
+    this.branchService.getBranches().subscribe(data => {
+      this.branches = data;
+    });
   }
 
   submit() {

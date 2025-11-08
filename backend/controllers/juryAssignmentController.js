@@ -1,3 +1,4 @@
+const CompetitionCategory = require('../models/CompetitionCategory');
 const JuryAssignment = require('../models/JuryAssignment');
 const User = require('../models/User');
 
@@ -35,6 +36,8 @@ exports.getByUser = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { competitionId, categoryId, classRoom, juryMembers } = req.body;
+    
+    console.log('Creating jury assignment with data:', { competitionId, categoryId, classRoom, juryMembers });
     if (!competitionId || !categoryId || !Array.isArray(juryMembers)) {
       return res.status(400).json({ message: 'Missing required fields' });
     }

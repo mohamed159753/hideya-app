@@ -23,6 +23,10 @@
         *ngIf="currentTab === 'categories'"
       ></app-admin-category>
 
+      <app-branch-management
+        *ngIf="currentTab === 'branches'"
+      ></app-branch-management>
+
       <!-- jury management / quick access -->
       <app-jury-dashboard *ngIf="currentTab === 'jury'"></app-jury-dashboard>
     </section>

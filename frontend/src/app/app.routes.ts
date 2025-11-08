@@ -4,6 +4,8 @@ import { AdminAddComponent } from './components/admin-add/admin-add.component';
 import { AdminCompetitionComponent } from './components/admin-competition/admin-competition.component';
 import { AdminCategoryComponent } from './components/admin-category/admin-category.component';
 import { AdminParticipationComponent } from './components/admin-participation/admin-participation.component';
+import { AgeGroupComponent } from './age-group/age-group.component';
+import { CompetitionCategoryConfigComponent } from './components/competition-category-config/competition-category-config.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,7 +27,9 @@ export const routes: Routes = [
   { path:'competition',component:AdminCompetitionComponent},
   { path:'category',component:AdminCategoryComponent},
   { path:'participation',component:AdminParticipationComponent},
-
+  { path:'branch-management', loadComponent: () => import('./components/branch-management/branch-management.component').then(m => m.BranchManagementComponent)},
+  { path:'age-group-management',component:AgeGroupComponent},
+  { path: 'admin/competitions/:id/configure', component:CompetitionCategoryConfigComponent},
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
   

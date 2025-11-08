@@ -1,156 +1,118 @@
-<div class="container">
-  <div class="card">
-    <h1>إدارة المسابقات</h1>
+<div class="container card">
+  <h1>إضافة مسابقة جديدة</h1>
 
-    <form [formGroup]="competitionForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label>اسم المسابقة</label>
-        <input formControlName="title" type="text" placeholder="أدخل اسم المسابقة" />
-      </div>
+  <!-- Wizard Step Indicators -->
+  <div class="steps">
+    <div [class.active]="currentStep === 1">1. المعلومات الأساسية</div>
+    <div [class.active]="currentStep === 2">2. الفئات والجنس</div>
+    <div [class.active]="currentStep === 3">3. المراجعة</div>
+  </div>
 
-      <div class="form-group">
-        <label>نوع المسابقة</label>
-        <select formControlName="type">
-          <option value="local">محلية</option>
-          <option value="regional">إقليمية</option>
-          <option value="national">وطنية</option>
-          <option value="international">دولية</option>
-        </select>
-      </div>
+  <!-- Step 1 -->
+  <div *ngIf="currentStep === 1">
+    <form [formGroup]="competitionForm">
+      <label>اسم المسابقة</label>
+      <input formControlName="title" type="text" />
 
-      <div class="form-group">
-        <label>الفئات</label>
-        <div *ngFor="let cat of categories">
-          <label style="display: flex; align-items: center; gap: 6px;">
-          <input
-          type="checkbox"
-          [value]="cat._id"
-          (change)="onCategoryCheckboxChange($event)"
-          [checked]="competitionForm.value.categoryIds.includes(cat._id)"
-          />
-            {{ cat.name }}
-          </label>
-        </div>
-      </div>
+      <label>نوع المسابقة</label>
+      <select formControlName="type">
+        <option value="local">محلية</option>
+        <option value="regional">إقليمية</option>
+        <option value="national">وطنية</option>
+        <option value="international">دولية</option>
+      </select>
 
-      <div class="form-group">
-        <label>تاريخ البداية</label>
-        <input type="datetime-local" formControlName="startDate" />
-      </div>
+      <label>تاريخ البداية</label>
+      <input type="datetime-local" formControlName="startDate" />
 
-      <div class="form-group">
-        <label>تاريخ النهاية</label>
-        <input type="datetime-local" formControlName="endDate" />
-      </div>
-
-      <div class="form-buttons">
-        <button type="submit" class="btn primary" [disabled]="competitionForm.invalid">
-          {{ editingId ? 'تحديث' : 'إضافة' }}
-        </button>
-        <button *ngIf="editingId" type="button" class="btn secondary" (click)="onCancel()">
-          إلغاء
-        </button>
-      </div>
+      <label>تاريخ النهاية</label>
+      <input type="datetime-local" formControlName="endDate" />
     </form>
   </div>
 
-  <div class="card">
-    <h2>قائمة المسابقات</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>اسم المسابقة</th>
-          <th>النوع</th>
-          <th>تاريخ البداية</th>
-          <th>تاريخ النهاية</th>
-          <th>الإجراءات</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let competition of competitions">
-          <td>{{ competition.title }}</td>
-          <td>{{ competition.type }}</td>
-          <td>{{ getCategoryNames(competition) }}</td>
-          <td>{{ formatDate(competition.startDate) }}</td>
-          <td>{{ formatDate(competition.endDate) }}</td>
-          <td>
-            <button class="btn small primary" (click)="onEdit(competition)">تعديل</button>
-            <button class="btn small danger" (click)="onDelete(competition._id!)">حذف</button>
-            <button class="btn small" (click)="openAssignments(competition)">إدارة الفئات</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+  <!-- Step 2 -->
+  <div *ngIf="currentStep === 2">
+    <h3>اختيار الفئات والجنس</h3>
 
-<!-- Assignments Modal -->
-<div class="modal" *ngIf="showAssignmentsModal">
-  <div class="modal-backdrop" (click)="closeAssignments()"></div>
-  <div class="modal-panel card">
-    <h3>إدارة الفئات للمسابقة: {{ selectedCompetition?.title }}</h3>
-    <div *ngFor="let cat of selectedCompetition?.categoryIds">
-      <div class="category-row">
-        <strong>{{ cat.name }}</strong>
-        <div *ngIf="getAssignmentForCategory(cat._id); else noAssign">
-          <div class="assignment">
-            <div>القاعة: {{ getAssignmentForCategory(cat._id)?.classRoom || '-' }}</div>
-            <div>
-              الأعضاء:
-              <span *ngFor="let m of getAssignmentForCategory(cat._id)?.juryMembers">
-                {{ formatUserName(m.userId) }} ({{ m.role }})
-              </span>
-            </div>
-            <div class="actions">
-              <button class="btn small" (click)="startEditAssignment(getAssignmentForCategory(cat._id))">تعديل</button>
-              <button class="btn small danger" (click)="deleteAssignment(getAssignmentForCategory(cat._id)?._id)">حذف</button>
-            </div>
-          </div>
-        </div>
-        <ng-template #noAssign>
-          <div>لا يوجد تعيين بعد</div>
-          <button class="btn small" (click)="openNewAssignmentForCategory(cat)">إضافة تعيين</button>
-        </ng-template>
+    <div *ngFor="let cat of categories">
+      <label>
+        <input
+          type="checkbox"
+          [value]="cat._id"
+          (change)="onCategoryChange($event)"
+          [checked]="competitionForm.value.categoryIds.includes(cat._id)"
+        />
+        {{ cat.name }}
+      </label>
 
-        <!-- Inline form for assignment (shows when editingCategoryId matches this category) -->
-        <div *ngIf="editingCategoryId === cat._id" class="assignment-form">
-          <label>القاعة</label>
-          <input type="text" [(ngModel)]="assignmentDraft.classRoom" [ngModelOptions]="{standalone: true}" />
+      <div *ngIf="competitionForm.value.categoryIds.includes(cat._id)" class="config-box">
+        <label><input type="checkbox" (change)="toggleGender(cat._id, 'male', $event)" /> ذكور</label>
+        <label><input type="checkbox" (change)="toggleGender(cat._id, 'female', $event)" /> إناث</label>
+        <label><input type="checkbox" (change)="toggleGender(cat._id, 'children', $event)" /> أطفال</label>
 
-          <label>تصفية المستخدمين</label>
-          <div class="filter-row">
-            <label>الخبرة الأدنى</label>
-            <input type="number" [(ngModel)]="filterExpertiseMin" [ngModelOptions]="{standalone: true}" min="1" max="10" />
-            <label>مرشح رئيسًا</label>
-            <select [(ngModel)]="filterCanBePresident" [ngModelOptions]="{standalone: true}">
-              <option [ngValue]="null">الكل</option>
-              <option [ngValue]="true">نعم</option>
-              <option [ngValue]="false">لا</option>
-            </select>
-          </div>
-
-          <label>الرئيس</label>
-          <select [(ngModel)]="assignmentDraft.presidentId" (ngModelChange)="onPresidentChange($event)" [ngModelOptions]="{standalone: true}">
-            <option value="">-- اختر --</option>
-            <option *ngFor="let u of getFilteredUsers()" [value]="u._id" [disabled]="assignmentDraft.memberIds?.includes(u._id)">{{ u.firstName }} {{ u.lastName }} ({{ u.expertiseLevel || '-' }})</option>
+        <div *ngIf="genderConfig[cat._id]?.children?.active">
+          <label>مجموعات الأعمار:</label>
+          <select multiple (change)="updateChildrenAgeGroups(cat._id, $event)">
+            <option *ngFor="let g of allAgeGroups" [value]="g._id">{{ g.name }}</option>
           </select>
-
-          <label>الأعضاء (اختر 2 أو أكثر)</label>
-          <select multiple [(ngModel)]="assignmentDraft.memberIds" (ngModelChange)="onMemberIdsChange($event)" [ngModelOptions]="{standalone: true}">
-            <option *ngFor="let u of getFilteredUsers()" [value]="u._id" [disabled]="assignmentDraft.presidentId === u._id">{{ u.firstName }} {{ u.lastName }} ({{ u.expertiseLevel || '-' }})</option>
-          </select>
-
-          <div class="form-buttons">
-            <button class="btn primary" (click)="submitAssignment(cat._id)">حفظ التعيين</button>
-            <button class="btn secondary" (click)="initAssignmentForm()">إلغاء</button>
-          </div>
         </div>
       </div>
       <hr />
     </div>
-
-    <div class="modal-actions">
-      <button class="btn" (click)="closeAssignments()">إغلاق</button>
-    </div>
   </div>
+
+  <!-- Step 3 -->
+  <div *ngIf="currentStep === 3">
+    <h3>مراجعة البيانات قبل الحفظ</h3>
+    <p><strong>اسم المسابقة:</strong> {{ competitionForm.value.title }}</p>
+    <p><strong>النوع:</strong> {{ competitionForm.value.type }}</p>
+    <p><strong>الفترة:</strong> {{ competitionForm.value.startDate }} → {{ competitionForm.value.endDate }}</p>
+
+    <p><strong>الفئات:</strong></p>
+    <ul>
+      <li *ngFor="let catId of competitionForm.value.categoryIds">
+        {{ getCategoryNameById(catId) }}:
+        <span *ngIf="genderConfig[catId]?.male">ذكور </span>
+        <span *ngIf="genderConfig[catId]?.female">إناث </span>
+        <span *ngIf="genderConfig[catId]?.children?.active">
+          أطفال ({{ genderConfig[catId]?.children?.ageGroups?.length }} فئات عمرية)
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Wizard Navigation Buttons -->
+  <div class="wizard-buttons">
+    <button class="btn secondary" (click)="goBack()" [disabled]="currentStep === 1">السابق</button>
+    <button class="btn primary" *ngIf="currentStep < 3" (click)="goNext()">التالي</button>
+    <button class="btn success" *ngIf="currentStep === 3" (click)="onSubmit()">حفظ المسابقة</button>
+  </div>
+</div>
+
+<!-- ======================== -->
+<!-- ✅ List of existing competitions -->
+<!-- ======================== -->
+<div class="container card">
+  <h2>قائمة المسابقات</h2>
+
+  <table class="competition-table">
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>النوع</th>
+        <th>الفئات</th>
+        <th>تاريخ البداية</th>
+        <th>تاريخ النهاية</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let comp of competitions">
+        <td>{{ comp.title }}</td>
+        <td>{{ comp.type }}</td>
+        <td>{{ getCategoryNames(comp) }}</td>
+        <td>{{ formatDate(comp.startDate) }}</td>
+        <td>{{ formatDate(comp.endDate) }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
