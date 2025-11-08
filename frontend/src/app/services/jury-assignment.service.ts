@@ -19,7 +19,7 @@ export class JuryAssignmentService {
 
   getByCompetition(competitionId: string): Observable<IJuryAssignment[]> {
     return this.http.get<IJuryAssignment[]>(`${this.apiUrl}?competitionId=${competitionId}`);
-  }
+}
 
   getByUser(userId: string) {
     return this.http.get<IJuryAssignment[]>(`${this.apiUrl}/user/${userId}`);

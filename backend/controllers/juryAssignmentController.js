@@ -35,34 +35,39 @@ exports.getByUser = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { competitionId, categoryId, classRoom, juryMembers } = req.body;
-    
-    console.log('Creating jury assignment with data:', { competitionId, categoryId, classRoom, juryMembers });
-    if (!competitionId || !categoryId || !Array.isArray(juryMembers)) {
+    // Destructure request body
+    const { competitionId, categoryId, subCategory, classRoom, juryMembers } = req.body;
+
+    // Validate required fields
+    if (!competitionId || !categoryId || !subCategory || !Array.isArray(juryMembers)) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Ensure there's exactly one president
+    // Ensure exactly one president
     const presidents = juryMembers.filter(m => m.role === 'president');
     if (presidents.length !== 1) {
       return res.status(400).json({ message: 'There must be exactly one president' });
     }
 
-    // Ensure classRoom is unique within the same competition (if provided)
-    if (classRoom && classRoom.toString().trim() !== '') {
-      const exists = await JuryAssignment.findOne({ competitionId, classRoom: classRoom.toString().trim() });
+    // Ensure classroom uniqueness per competition + subcategory
+    if (classRoom && classRoom.trim() !== '') {
+      const exists = await JuryAssignment.findOne({ competitionId, subCategory, classRoom: classRoom.trim() });
       if (exists) {
-        return res.status(409).json({ message: 'This classroom is already assigned to another category in the same competition' });
+        return res.status(409).json({ message: 'This classroom is already assigned for this subcategory' });
       }
     }
 
-    const assignment = new JuryAssignment({ competitionId, categoryId, classRoom, juryMembers });
+    // Create and save the assignment
+    const assignment = new JuryAssignment({ competitionId, categoryId, subCategory, classRoom, juryMembers });
     await assignment.save();
-    // populate via a fresh query to avoid issues with document.populate chaining
+
+    // Populate for response
     const out = await JuryAssignment.findById(assignment._id)
       .populate('categoryId', 'name _id')
       .populate('juryMembers.userId', 'firstName lastName email role');
+
     res.status(201).json(out);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
