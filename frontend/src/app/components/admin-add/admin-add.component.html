@@ -43,7 +43,10 @@
 
       <div class="form-group">
         <label>الفرع (المدرسة) *</label>
-        <input type="text" formControlName="branch" placeholder="أدخل اسم الفرع/المدرسة" />
+        <select formControlName="branch" required>
+          <option value="" disabled selected>اختر الفرع</option>
+          <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
+        </select>
         <span class="error" *ngIf="competitorForm.get('branch')?.invalid && competitorForm.get('branch')?.touched">
           الفرع مطلوب
         </span>

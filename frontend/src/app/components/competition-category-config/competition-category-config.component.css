@@ -1,0 +1,243 @@
+/* Container */
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+  font-family: "Cairo", "Tahoma", sans-serif;
+  direction: rtl;
+  text-align: right;
+  padding: 0 20px;
+}
+
+/* Card */
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+h1, h2 {
+  color: #2e7d32;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.competition-info {
+  background-color: #f0f6f4;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.competition-info h3 {
+  margin: 0 0 10px 0;
+  color: #2e7d32;
+}
+
+.competition-info p {
+  margin: 5px 0;
+  color: #555;
+}
+
+/* Category sections */
+.category-section {
+  margin-bottom: 30px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fafafa;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #43a047;
+}
+
+.category-header h3 {
+  margin: 0;
+  color: #2e7d32;
+}
+
+/* Form */
+.add-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 14px;
+}
+
+select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  font-family: "Cairo", "Tahoma", sans-serif;
+  transition: 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 5px rgba(46, 125, 50, 0.3);
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: "Cairo", "Tahoma", sans-serif;
+  transition: 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primary {
+  background-color: #43a047;
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.secondary:hover {
+  background-color: #e0e0e0;
+}
+
+.danger {
+  background-color: #e53935;
+  color: white;
+}
+
+.danger:hover {
+  background-color: #c62828;
+}
+
+.small {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* Competition categories list */
+.comp-categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comp-category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.comp-category-item:hover {
+  background-color: #f5f9f5;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.comp-category-info {
+  flex: 1;
+}
+
+.comp-category-label {
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 5px;
+}
+
+.comp-category-details {
+  font-size: 13px;
+  color: #666;
+}
+
+.comp-category-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-style: italic;
+  background-color: #fff;
+  border-radius: 6px;
+}
+
+.back-button {
+  margin-bottom: 20px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #f5c6cb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .comp-category-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .comp-category-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

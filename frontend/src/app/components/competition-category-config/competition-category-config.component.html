@@ -1,0 +1,85 @@
+<div class="container">
+  <div class="back-button">
+    <button class="btn secondary" (click)="goBack()">← العودة للمسابقات</button>
+  </div>
+
+  <div class="card">
+    <h1>إعداد فئات المسابقة</h1>
+
+    <div class="competition-info" *ngIf="competition">
+      <h3>{{ competition.title }}</h3>
+      <p><strong>النوع:</strong> {{ competition.type }}</p>
+      <p><strong>تاريخ البداية:</strong> {{ formatDate(competition.startDate) }}</p>
+      <p><strong>تاريخ النهاية:</strong> {{ formatDate(competition.endDate) }}</p>
+    </div>
+
+    <div *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- For each base category (Hizb level) -->
+  <div class="card category-section" *ngFor="let category of baseCategories">
+    <div class="category-header">
+      <h3>{{ category.name }}</h3>
+    </div>
+
+    <!-- Add new competition category form -->
+    <div class="add-form">
+      <div class="form-group">
+        <label>الفئة العمرية</label>
+        <select [(ngModel)]="newCompCategory[category._id].ageGroupId">
+          <option value="">اختر الفئة العمرية</option>
+          <option *ngFor="let ag of ageGroups" [value]="ag._id">
+            {{ ag.name }}
+            <span *ngIf="ag.from && ag.to">({{ ag.from }} - {{ ag.to }})</span>
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>الجنس</label>
+        <select [(ngModel)]="newCompCategory[category._id].gender">
+          <option value="">اختر الجنس</option>
+          <option value="male">ذكور</option>
+          <option value="female">إناث</option>
+        </select>
+      </div>
+
+      <button 
+        class="btn primary" 
+        (click)="addCompetitionCategory(category._id)"
+        [disabled]="!newCompCategory[category._id].ageGroupId || !newCompCategory[category._id].gender">
+        إضافة
+      </button>
+    </div>
+
+    <!-- List of existing competition categories for this base category -->
+    <div class="comp-categories-list" *ngIf="getCompCategoriesForBase(category._id).length > 0; else noCategories">
+      <div class="comp-category-item" *ngFor="let cc of getCompCategoriesForBase(category._id)">
+        <div class="comp-category-info">
+          <div class="comp-category-label">{{ cc.label || generateLabel(cc) }}</div>
+          <div class="comp-category-details">
+            الفئة العمرية: {{ getAgeGroupName(cc.ageGroupId) }} | 
+            الجنس: {{ cc.gender === 'male' ? 'ذكور' : 'إناث' }}
+          </div>
+        </div>
+        <div class="comp-category-actions">
+          <button class="btn danger small" (click)="deleteCompetitionCategory(cc._id!)">
+            حذف
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noCategories>
+      <div class="empty-message">
+        لم يتم إضافة أي فئة بعد لهذا المستوى
+      </div>
+    </ng-template>
+  </div>
+</div>
