@@ -12,4 +12,8 @@ const juryAssignmentSchema = new mongoose.Schema({
   ]
 });
 
+// Ensure classRoom is unique per competition when provided
+// sparse: true allows multiple documents without classRoom
+juryAssignmentSchema.index({ competitionId: 1, classRoom: 1 }, { unique: true, sparse: true });
+
 module.exports = mongoose.model("JuryAssignment", juryAssignmentSchema);

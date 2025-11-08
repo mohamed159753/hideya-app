@@ -18,10 +18,12 @@ export class AdminDashboardComponent {
 
   tabs = [
     { id: 'overview', label: 'نظرة عامة' },
-    { id: 'competitions', label: 'المسابقات' },
-    { id: 'categories', label: 'الفئات' },
+    { id: 'users', label: 'المستخدمون' },
     { id: 'participants', label: 'المتسابقون' },
-    { id: 'users', label: 'المدرسون' }
+    { id: 'competitions', label: 'المسابقات' },
+    { id: 'participations', label: 'المشاركات' },
+    { id: 'categories', label: 'الفئات' },
+    
   ];
 
   currentTab = 'overview';
