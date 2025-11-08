@@ -28,10 +28,13 @@ const juryRoutes = require('./routes/juryAssignments');
 app.use('/api/jury-assignments', juryRoutes);
 const marksRoutes = require('./routes/marks');
 app.use('/api/marks', marksRoutes);
+const resultsRoutes = require('./routes/results');
+app.use('/api/results', resultsRoutes);
+const juryResultsRoutes = require('./routes/juryResults');
+app.use('/api/jury-results', juryResultsRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/age-groups", groupAgeRoutes);
 app.use("/api/competition-categories", competitionCategoryRoutes);
-
 
 
 

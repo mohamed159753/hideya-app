@@ -4,6 +4,7 @@ import { AdminAddComponent } from './components/admin-add/admin-add.component';
 import { AdminCompetitionComponent } from './components/admin-competition/admin-competition.component';
 import { AdminCategoryComponent } from './components/admin-category/admin-category.component';
 import { AdminParticipationComponent } from './components/admin-participation/admin-participation.component';
+import { JuryResultsComponent } from './components/jury-results/jury-results.component';
 import { AgeGroupComponent } from './age-group/age-group.component';
 import { CompetitionCategoryConfigComponent } from './components/competition-category-config/competition-category-config.component';
 
@@ -23,10 +24,17 @@ export const routes: Routes = [
         (m) => m.JuryDashboardComponent
       ),
   },
+  {
+    path: 'results/:id',
+    loadComponent: () =>
+      import('./components/results/results.component').then((m) => m.ResultsComponent),
+  },
   { path:'competitor',component:AdminAddComponent},
   { path:'competition',component:AdminCompetitionComponent},
   { path:'category',component:AdminCategoryComponent},
   { path:'participation',component:AdminParticipationComponent},
+  { path: 'jury-results', component:JuryResultsComponent },
+
   { path:'branch-management', loadComponent: () => import('./components/branch-management/branch-management.component').then(m => m.BranchManagementComponent)},
   { path:'age-group-management',component:AgeGroupComponent},
   { path: 'admin/competitions/:id/configure', component:CompetitionCategoryConfigComponent},

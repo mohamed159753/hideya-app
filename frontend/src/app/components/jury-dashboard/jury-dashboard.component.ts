@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -12,15 +12,17 @@ import { JuryAssignmentService } from '../../services/jury-assignment.service';
 import { ParticipationService } from '../../services/participation.service';
 import { MarkService } from '../../services/mark.service';
 import { NotificationService } from '../../services/notification.service';
+import { ResultsService } from '../../services/results.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-jury-dashboard',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './jury-dashboard.component.html',
-  styleUrl: './jury-dashboard.component.css',
+  styleUrls: ['./jury-dashboard.component.css'],
 })
-export class JuryDashboardComponent {
+export class JuryDashboardComponent implements OnInit {
   assignments: any[] = [];
   currentUser: any = null;
 
@@ -34,43 +36,160 @@ export class JuryDashboardComponent {
   loadingMark = false;
   defaultQuestionCount = 3;
 
+  canShowResults: boolean = false;
+  resultsMessage: string = '';
+  isPresident: boolean = false;
+
+  // Track marked participants
+  markedParticipants: Set<string> = new Set();
+
   constructor(
     private auth: AuthService,
     private juryService: JuryAssignmentService,
     private participationService: ParticipationService,
     private markService: MarkService,
     private fb: FormBuilder,
-    private notify: NotificationService
-  ) {
+    private notify: NotificationService,
+    private resultsService: ResultsService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    console.log('Jury Dashboard Component Loaded');
     const user = this.auth.getCurrentUser();
     if (user) {
       this.currentUser = user;
       this.loadAssignments(user.id);
+      this.checkUserRole();
     }
     this.initMarkForm();
   }
+  checkUserRole() {
+    this.isPresident = this.assignments.some((assignment) =>
+      assignment.juryMembers?.some((member: any) => {
+        const uid = member.userId?._id || member.userId;
+        return (
+          (uid === this.currentUser.id || uid === this.currentUser._id) &&
+          member.role === 'president'
+        );
+      })
+    );
+  }
+  // Check if results can be shown
+  checkAndShowResults() {
+    if (!this.selectedAssignment) {
+      this.resultsMessage = 'يرجى اختيار مهمة أولاً';
+      return;
+    }
 
-  loadAssignments(userId: string) {
-    this.juryService
-      .getByUser(userId)
-      .subscribe((a) => (this.assignments = a || []));
+    const compId =
+      this.selectedAssignment.competitionId?._id ||
+      this.selectedAssignment.competitionId;
+    const catId =
+      this.selectedAssignment.categoryId?._id ||
+      this.selectedAssignment.categoryId;
+
+    const requestedBy = this.currentUser?.id || this.currentUser?._id;
+    this.resultsService.check(compId, catId, requestedBy).subscribe({
+      next: (response: any) => {
+        if (response.allowed) {
+          // Save final results to DB (for traceability) and navigate to the saved result
+          this.resultsService.saveFinalResults({ competitionId: compId, categoryId: catId, requestedBy }).subscribe(
+            (saved: any) => {
+              if (saved && saved._id) {
+                this.router.navigate(['/results', saved._id]);
+              } else {
+                this.resultsMessage = 'فشل حفظ النتائج النهائية';
+              }
+            },
+            (err) => {
+              console.error('Error saving final results:', err);
+            }
+          );
+        } else {
+          this.resultsMessage = this.translateReason(response.reason) || 'لا يمكن عرض النتائج حالياً';
+        }
+      },
+      error: (error) => {
+        this.resultsMessage = 'حدث خطأ في التحقق من النتائج';
+        console.error('Error checking results:', error);
+      },
+    });
   }
 
-  openAssignment(a: any) {
-    this.selectedAssignment = a;
-    const compId = a.competitionId?._id || a.competitionId;
-    const catId = a.categoryId?._id || a.categoryId;
-    this.participants = [];
+  loadAssignments(userId: string) {
+    this.juryService.getByUser(userId).subscribe((a) => {
+      this.assignments = a || [];
+      console.log('Assignments loaded:', this.assignments);
+    });
+  }
+
+  // Update the canShowResults property when assignment is selected
+  openAssignment(assignment: any) {
+    this.selectedAssignment = assignment;
+    const compId = assignment.competitionId?._id || assignment.competitionId;
+    const catId = assignment.categoryId?._id || assignment.categoryId;
+
     if (!compId) return;
+
     this.participationService.getByCompetition(compId).subscribe((list) => {
       this.participants = (list || []).filter(
         (p: any) => (p.categoryId?._id || p.categoryId) == catId
       );
+
+      // Load marks and check if results can be shown
+      this.loadMarksForParticipants();
+      this.updateResultsAvailability();
     });
   }
-  closeAssignment() {
-    this.selectedAssignment = null;
-    this.participants = [];
+
+  updateResultsAvailability() {
+    if (!this.selectedAssignment) return;
+
+    const compId =
+      this.selectedAssignment.competitionId?._id ||
+      this.selectedAssignment.competitionId;
+    const catId =
+      this.selectedAssignment.categoryId?._id ||
+      this.selectedAssignment.categoryId;
+
+    const requestedBy = this.currentUser?.id || this.currentUser?._id;
+    this.resultsService.check(compId, catId, requestedBy).subscribe({
+      next: (response: any) => {
+        this.canShowResults = !!response.allowed;
+        this.resultsMessage = this.translateReason(response.reason) || '';
+      },
+      error: (error) => {
+        console.error('Error updating results availability:', error);
+      },
+    });
+  }
+
+  loadMarksForParticipants() {
+    const juryId = this.currentUser.id || this.currentUser._id;
+    this.markedParticipants.clear();
+
+    this.participants.forEach((participant) => {
+      this.markService
+        .getByJuryAndParticipation(juryId, participant._id)
+        .subscribe((mark: any) => {
+          if (mark) {
+            this.markedParticipants.add(participant._id);
+          }
+        });
+    });
+  }
+
+  // Helper method to get initials for avatar
+  getInitials(participant: any): string {
+    const firstName = participant.competitorId?.firstName || '';
+    const lastName = participant.competitorId?.lastName || '';
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+  }
+
+  // Helper method to check if participant is marked
+  isMarked(participant: any): boolean {
+    return this.markedParticipants.has(participant._id);
   }
 
   openMarkModal(participation: any) {
@@ -78,46 +197,59 @@ export class JuryDashboardComponent {
     this.markModalOpen = true;
     this.loadingMark = true;
 
-    // determine if current user is president for the selected assignment
+    // Determine if current user is president for the selected assignment
     this.isPresidentForSelected = !!(
-      (this.selectedAssignment?.juryMembers || []).find((m: any) => {
-        const uid = m.userId?._id || m.userId;
-        return (
-          uid === this.currentUser.id || uid === this.currentUser._id
-        ) && m.role === 'president';
-      })
-    );
+      this.selectedAssignment?.juryMembers || []
+    ).find((m: any) => {
+      const uid = m.userId?._id || m.userId;
+      return (
+        (uid === this.currentUser.id || uid === this.currentUser._id) &&
+        m.role === 'president'
+      );
+    });
 
-    // try to load existing mark for this jury + participation
+    // Try to load existing mark for this jury + participation
     const juryId = this.currentUser.id || this.currentUser._id;
     this.markService
       .getByJuryAndParticipation(juryId, participation._id)
       .subscribe(
         (res: any) => {
           if (res) {
-            // load existing
+            // Load existing mark
             this.markForm.patchValue({
               juryId: res.juryId,
               participationId: res.participationId,
               performanceLevel: res.performanceLevel || 'متوسط',
               confirmed: !!res.confirmed,
             });
-            if (Array.isArray(res.questions)) this.setQuestionsFromData(res.questions);
-            else this.setQuestionsFromData(null);
+            // enable/disable performance control based on confirmed
+            if (this.markForm.get('confirmed')?.value) {
+              this.markForm.get('performanceLevel')?.disable();
+            } else {
+              this.markForm.get('performanceLevel')?.enable();
+            }
+            if (Array.isArray(res.questions)) {
+              this.setQuestionsFromData(res.questions);
+            } else {
+              this.setQuestionsFromData(null);
+            }
+            this.markedParticipants.add(participation._id);
           } else {
-            // new mark
+            // New mark
             this.markForm.patchValue({
               juryId: juryId,
               participationId: participation._id,
               performanceLevel: 'متوسط',
               confirmed: false,
             });
+            // ensure performance control is enabled for a new mark
+            this.markForm.get('performanceLevel')?.enable();
             this.setQuestionsFromData(null);
           }
           this.loadingMark = false;
         },
         (_err) => {
-          // on error, initialize empty form
+          // On error, initialize empty form
           this.markForm.patchValue({
             juryId: juryId,
             participationId: participation._id,
@@ -138,10 +270,13 @@ export class JuryDashboardComponent {
   submitMark() {
     if (!this.markForm.valid) {
       this.markForm.markAllAsTouched();
+      this.notify.error('يرجى ملء جميع الحقول المطلوبة');
       return;
     }
+
     this.loadingMark = true;
     const payload = this.buildPayloadFromForm();
+
     this.markService.upsert(payload).subscribe(
       (res) => {
         this.loadingMark = false;
@@ -151,16 +286,25 @@ export class JuryDashboardComponent {
             performanceLevel:
               res.performanceLevel || this.markForm.value.performanceLevel,
           });
-          if (Array.isArray(res.questions))
+          // update performance control disabled state based on confirmed
+          if (this.markForm.get('confirmed')?.value) {
+            this.markForm.get('performanceLevel')?.disable();
+          } else {
+            this.markForm.get('performanceLevel')?.enable();
+          }
+          if (Array.isArray(res.questions)) {
             this.setQuestionsFromData(res.questions);
+          }
+          this.markedParticipants.add(this.selectedParticipation._id);
           this.notify.success('تم حفظ العلامة بنجاح');
         }
       },
       (err) => {
         console.error(err);
         this.loadingMark = false;
-        // error notifications are already shown by the service, but in case show fallback
-        if (!err?.error?.message) this.notify.error('حدث خطأ أثناء حفظ العلامة');
+        if (!err?.error?.message) {
+          this.notify.error('حدث خطأ أثناء حفظ العلامة');
+        }
       }
     );
   }
@@ -168,6 +312,8 @@ export class JuryDashboardComponent {
   confirmMark() {
     if (!this.markForm) return;
     this.markForm.patchValue({ confirmed: true });
+    // disable performance control when confirmed
+    this.markForm.get('performanceLevel')?.disable();
     this.submitMark();
   }
 
@@ -181,7 +327,7 @@ export class JuryDashboardComponent {
       confirmed: [false],
     });
 
-    // listen to questions changes and trigger recalculations (Angular will update getters)
+    // Listen to questions changes
     this.markForm.get('questions')?.valueChanges.subscribe(() => {});
   }
 
@@ -209,7 +355,6 @@ export class JuryDashboardComponent {
         fath: [data?.memorization?.fath ?? 0, [Validators.min(0)]],
         taradud: [data?.memorization?.taradud ?? 0, [Validators.min(0)]],
       }),
-      // flat controls for easier binding in template (we map these values when displaying)
       tajweed: this.fb.group({
         ghunna: [data?.tajweed?.ghunna ?? 0, [Validators.min(0)]],
         mad: [data?.tajweed?.mad ?? 0, [Validators.min(0)]],
@@ -227,12 +372,13 @@ export class JuryDashboardComponent {
     if (data && data.length) {
       data.forEach((d, i) => arr.push(this.makeQuestionGroup(i, d)));
     } else {
-      for (let i = 0; i < this.defaultQuestionCount; i++)
+      for (let i = 0; i < this.defaultQuestionCount; i++) {
         arr.push(this.makeQuestionGroup(i));
+      }
     }
   }
 
-  // compute deductions based on form values (client-side preview)
+  // All other computation methods remain the same
   computeDeductions() {
     const D = { tanbih: 0.5, fath: 1.5, taradud: 0.25, tajUnit: 0.25 };
     let memD = 0;
@@ -252,7 +398,6 @@ export class JuryDashboardComponent {
       tajD += (t.usul || 0) * D.tajUnit;
       tajD += (t.other || 0) * D.tajUnit;
     }
-    // rounding to 2 decimals for display
     return {
       memDeductions: Math.round(memD * 100) / 100,
       tajDeductions: Math.round(tajD * 100) / 100,
@@ -299,19 +444,10 @@ export class JuryDashboardComponent {
     );
   }
 
-  get maxTotal() {
-    return 100;
-  }
-
-  get progressPercent() {
-    return Math.round((this.currentTotal / this.maxTotal) * 100);
-  }
-
   get isConfirmed() {
     return this.markForm?.get('confirmed')?.value === true;
   }
 
-  // increase/decrease for memorization mistakes in question i
   increaseMistake(qIndex: number, field: string) {
     const ctrl = this.questions.at(qIndex).get(['memorization', field]);
     if (!ctrl) return;
@@ -338,7 +474,6 @@ export class JuryDashboardComponent {
     ctrl.setValue(next < 0 ? 0 : next);
   }
 
-  // per-question computations (used in template)
   perQuestionMemDeduction(qIndex: number) {
     const D = { tanbih: 0.5, fath: 1.5, taradud: 0.25 };
     const q = this.questions.at(qIndex).value;
@@ -365,14 +500,11 @@ export class JuryDashboardComponent {
     return Math.round(sum * 100) / 100;
   }
 
-  // tajweed score per question (max per question = depends on your rules; we compute relative)
   tajMaxPerQuestion() {
-    // since tajweed total is 25 overall, if defaultQuestionCount questions then per-question max = 25 / defaultQuestionCount
     return Math.round((25 / Math.max(1, this.questions.length)) * 100) / 100;
   }
 
   perQuestionTajScore(qIndex: number) {
-    // return the score left in tajweed for that question after deduction (not strictly necessary but useful)
     const max = this.tajMaxPerQuestion();
     const ded = this.perQuestionTajDeduction(qIndex);
     const score = Math.max(0, Math.round((max - ded) * 100) / 100);
@@ -380,17 +512,14 @@ export class JuryDashboardComponent {
   }
 
   perQuestionRowTotal(qIndex: number) {
-    // aggregate mem and taj per question into a small row total (for display only)
     const memMaxPerQ =
       Math.round((70 / Math.max(1, this.questions.length)) * 100) / 100;
     const memDed = this.perQuestionMemDeduction(qIndex);
     const memScore = Math.max(0, Math.round((memMaxPerQ - memDed) * 100) / 100);
     const tajScore = this.perQuestionTajScore(qIndex);
-    // performance is global, not per-question, so we omit it here
     return Math.round((memScore + tajScore) * 100) / 100;
   }
 
-  // helper to compute totals for footer counters
   totalCounters(group: 'memorization' | 'tajweed', field: string) {
     let tot = 0;
     for (let i = 0; i < this.questions.length; i++) {
@@ -398,5 +527,101 @@ export class JuryDashboardComponent {
       if (ctrl) tot += ctrl.value || 0;
     }
     return tot;
+  }
+  // Add these methods to your jury-dashboard.component.ts
+
+  // Hover methods for interactive elements
+  onTaskCardHover(event: any, isHovering: boolean) {
+    const element = event.currentTarget;
+    if (isHovering) {
+      element.style.transform = 'translateY(-2px)';
+      element.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.12)';
+      element.style.borderColor = '#2d8c4a';
+    } else {
+      element.style.transform = 'translateY(0)';
+      element.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.08)';
+      // Keep border color if it's the active assignment
+      if (!this.selectedAssignment || element !== this.selectedAssignment) {
+        element.style.borderColor = '#e0e0e0';
+      }
+    }
+  }
+
+  onCompetitorCardHover(event: any, isHovering: boolean) {
+    const element = event.currentTarget;
+    if (isHovering) {
+      element.style.transform = 'translateY(-2px)';
+      element.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.12)';
+      element.style.borderColor = '#2d8c4a';
+    } else {
+      element.style.transform = 'translateY(0)';
+      element.style.boxShadow = 'none';
+      element.style.borderColor = '#e0e0e0';
+    }
+  }
+
+  onMarkButtonHover(event: any, isHovering: boolean) {
+    const element = event.currentTarget;
+    element.style.background = isHovering ? '#1b5e20' : '#2d8c4a';
+  }
+
+  onCloseButtonHover(event: any, isHovering: boolean) {
+    const element = event.currentTarget;
+    element.style.background = isHovering ? 'rgba(255, 255, 255, 0.2)' : 'none';
+  }
+
+  onSummaryCardHover(element: any, isHovering: boolean) {
+    element.style.transform = isHovering ? 'translateY(-2px)' : 'translateY(0)';
+  }
+
+  // Open results flow: check permission, generate result and navigate to results view
+  openResults(assignment: any) {
+    const compId = assignment.competitionId?._id || assignment.competitionId;
+    const catId = assignment.categoryId?._id || assignment.categoryId;
+    if (!compId || !catId) {
+      this.notify.error('معرّف المسابقة أو الفئة مفقود');
+      return;
+    }
+    const requestedBy = this.currentUser?.id || this.currentUser?._id;
+    this.resultsService.check(compId, catId, requestedBy).subscribe(
+      (res: any) => {
+        if (!res?.allowed) {
+          this.notify.error(this.translateReason(res?.reason) || 'غير مسموح بعرض النتائج الآن');
+          return;
+        }
+        this.notify.info('جارٍ تجهيز النتائج...');
+        this.resultsService
+          .saveFinalResults({ competitionId: compId, categoryId: catId, requestedBy })
+          .subscribe(
+            (result: any) => {
+              if (result && result._id) {
+                this.router.navigate(['/results', result._id]);
+              } else {
+                this.notify.error('فشل إنشاء النتائج');
+              }
+            },
+            (err: any) => {
+              // errors already notified by service
+              console.error(err);
+            }
+          );
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
+  // Translate backend reason codes/messages (English) into Arabic for UI
+  translateReason(reason?: string) {
+    if (!reason) return '';
+    const r = String(reason).toLowerCase();
+    if (r.includes('president') || r.includes('override')) return 'مسموح بتجاوز الرئيس';
+    if (r.includes('not all') || r.includes('not all marks') || r.includes('not all marks submitted') || r.includes('not all')) return 'لم يتم وضع علامات لجميع الحكام';
+    if (r.includes('all jury') || r.includes('all jury members') || r.includes('all jury members submitted marks') || r.includes('all')) return 'جميع الحكام قد وضعوا علامات';
+    if (r.includes('no jury')) return 'لا توجد لجان محكّمة مخصصة لهذه الفئة';
+    if (r.includes('invalid')) return 'معرّف المسابقة أو الفئة غير صالح';
+    // fallback: return original reason if likely already Arabic, else return it unchanged
+    return reason;
   }
 }
