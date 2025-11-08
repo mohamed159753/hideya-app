@@ -546,7 +546,6 @@
               >
               <select
                 formControlName="performanceLevel"
-                [disabled]="isConfirmed"
                 style="
                   padding: 8px 12px;
                   border: 1px solid #e0e0e0;
@@ -605,7 +604,7 @@
                       </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody formArrayName="questions">
                       <tr
                         *ngFor="let qCtrl of questions.controls; let i = index"
                         [formGroupName]="i"

@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CompetitionService } from '../../services/competition.service';
 import { AdminAddService } from '../../services/admin-add.service';
@@ -10,7 +15,7 @@ import { ParticipationService } from '../../services/participation.service';
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './admin-participation.component.html',
-  styleUrls: ['./admin-participation.component.css']
+  styleUrls: ['./admin-participation.component.css'],
 })
 export class AdminParticipationComponent implements OnInit {
   participationForm!: FormGroup;
@@ -34,7 +39,7 @@ export class AdminParticipationComponent implements OnInit {
     this.participationForm = this.fb.group({
       competitionId: ['', Validators.required],
       categoryId: ['', Validators.required],
-      competitorIds: [[], Validators.required]
+      competitorIds: [[], Validators.required],
     });
 
     this.loadCompetitions();
@@ -43,27 +48,47 @@ export class AdminParticipationComponent implements OnInit {
   }
 
   loadCompetitions() {
-    this.competitionService.getAll().subscribe(data => {
-      this.competitions = data;
+    this.competitionService.getAll().subscribe({
+      next: (data) => {
+        this.competitions = data || [];
+      },
+      error: (error) => {
+        console.error('Error loading competitions:', error);
+        this.competitions = [];
+      },
     });
   }
 
   loadCompetitors() {
-    this.competitorService.getAll().subscribe(data => {
-      this.competitors = data;
+    this.competitorService.getAll().subscribe({
+      next: (data) => {
+        this.competitors = data || [];
+      },
+      error: (error) => {
+        console.error('Error loading competitors:', error);
+        this.competitors = [];
+      },
     });
   }
 
   loadParticipations() {
-    this.participationService.getAll().subscribe(data => {
-      this.participations = data;
+    this.participationService.getAll().subscribe({
+      next: (data) => {
+        this.participations = data || [];
+      },
+      error: (error) => {
+        console.error('Error loading participations:', error);
+        this.participations = [];
+      },
     });
   }
 
   onCompetitionChange() {
     const competitionId = this.participationForm.get('competitionId')?.value;
     if (competitionId) {
-      const selectedCompetition = this.competitions.find(c => c._id === competitionId);
+      const selectedCompetition = this.competitions.find(
+        (c) => c._id === competitionId
+      );
       this.categories = selectedCompetition?.categoryIds || [];
       console.log('Selected Competition Categories:', this.categories);
       this.participationForm.get('categoryId')?.setValue('');
@@ -75,7 +100,9 @@ export class AdminParticipationComponent implements OnInit {
   // Modal handlers
   openModal() {
     this.modalOpen = true;
-    this.selectedCompetitors = [...this.participationForm.get('competitorIds')?.value || []];
+    this.selectedCompetitors = [
+      ...(this.participationForm.get('competitorIds')?.value || []),
+    ];
   }
 
   closeModal() {
@@ -83,6 +110,8 @@ export class AdminParticipationComponent implements OnInit {
   }
 
   toggleCompetitor(id: string) {
+    if (!id) return;
+
     const idx = this.selectedCompetitors.indexOf(id);
     if (idx > -1) {
       this.selectedCompetitors.splice(idx, 1);
@@ -92,25 +121,41 @@ export class AdminParticipationComponent implements OnInit {
   }
 
   confirmSelection() {
-    this.participationForm.get('competitorIds')?.setValue(this.selectedCompetitors);
+    this.participationForm
+      .get('competitorIds')
+      ?.setValue(this.selectedCompetitors);
     this.closeModal();
   }
 
   onSubmit() {
     if (this.participationForm.valid) {
-      const { competitionId, categoryId, competitorIds } = this.participationForm.value;
+      const { competitionId, categoryId, competitorIds } =
+        this.participationForm.value;
 
-      this.participationService.registerMultiple(competitionId, categoryId, competitorIds)
-        .subscribe(() => {
-          this.participationForm.reset();
-          this.selectedCompetitors = [];
-          this.categories = [];
-          this.loadParticipations();
+      this.participationService
+        .registerMultiple(competitionId, categoryId, competitorIds)
+        .subscribe({
+          next: () => {
+            this.participationForm.reset();
+            this.selectedCompetitors = [];
+            this.categories = [];
+            this.loadParticipations();
+          },
+          error: (error) => {
+            console.error('Error registering participants:', error);
+          },
         });
     }
   }
 
   onDelete(id: string) {
-    this.participationService.delete(id).subscribe(() => this.loadParticipations());
+    if (!id) return;
+
+    this.participationService.delete(id).subscribe({
+      next: () => this.loadParticipations(),
+      error: (error) => {
+        console.error('Error deleting participation:', error);
+      },
+    });
   }
 }

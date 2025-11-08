@@ -1,9 +1,7 @@
 <div class="container">
   <div class="card">
     <h1>تسجيل المشاركين في المسابقات</h1>
-
     <form [formGroup]="participationForm" (ngSubmit)="onSubmit()">
-
       <!-- Competition -->
       <div class="form-group">
         <label>اختر المسابقة</label>
@@ -12,24 +10,21 @@
           <option *ngFor="let comp of competitions" [value]="comp._id">{{ comp.title }}</option>
         </select>
       </div>
-
       <!-- Category -->
-      <div class="form-group" *ngIf="categories.length">
+      <div class="form-group" *ngIf="categories?.length">
         <label>اختر الفئة</label>
         <select formControlName="categoryId" required>
           <option value="" disabled>اختر الفئة</option>
           <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
         </select>
       </div>
-
       <!-- Competitors -->
       <div class="form-group">
         <label>المتسابقون</label>
         <button type="button" class="btn secondary" (click)="openModal()">
-          اختر المتسابقين ({{ participationForm.get('competitorIds')?.value.length }} مختارين)
+          اختر المتسابقين ({{ participationForm.get('competitorIds')?.value?.length || 0 }} مختارين)
         </button>
       </div>
-
       <div class="form-buttons">
         <button type="submit" class="btn primary" [disabled]="participationForm.invalid">تسجيل</button>
       </div>
@@ -39,7 +34,7 @@
   <!-- Participation list -->
   <div class="card">
     <h2>قائمة المشاركات</h2>
-    <div class="table-wrapper" *ngIf="participations.length; else emptyList">
+    <div class="table-wrapper" *ngIf="participations?.length; else emptyList">
       <table>
         <thead>
           <tr>

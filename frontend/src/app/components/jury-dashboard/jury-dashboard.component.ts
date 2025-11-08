@@ -222,6 +222,12 @@ export class JuryDashboardComponent implements OnInit {
               performanceLevel: res.performanceLevel || 'متوسط',
               confirmed: !!res.confirmed,
             });
+            // enable/disable performance control based on confirmed
+            if (this.markForm.get('confirmed')?.value) {
+              this.markForm.get('performanceLevel')?.disable();
+            } else {
+              this.markForm.get('performanceLevel')?.enable();
+            }
             if (Array.isArray(res.questions)) {
               this.setQuestionsFromData(res.questions);
             } else {
@@ -236,6 +242,8 @@ export class JuryDashboardComponent implements OnInit {
               performanceLevel: 'متوسط',
               confirmed: false,
             });
+            // ensure performance control is enabled for a new mark
+            this.markForm.get('performanceLevel')?.enable();
             this.setQuestionsFromData(null);
           }
           this.loadingMark = false;
@@ -278,6 +286,12 @@ export class JuryDashboardComponent implements OnInit {
             performanceLevel:
               res.performanceLevel || this.markForm.value.performanceLevel,
           });
+          // update performance control disabled state based on confirmed
+          if (this.markForm.get('confirmed')?.value) {
+            this.markForm.get('performanceLevel')?.disable();
+          } else {
+            this.markForm.get('performanceLevel')?.enable();
+          }
           if (Array.isArray(res.questions)) {
             this.setQuestionsFromData(res.questions);
           }
@@ -298,6 +312,8 @@ export class JuryDashboardComponent implements OnInit {
   confirmMark() {
     if (!this.markForm) return;
     this.markForm.patchValue({ confirmed: true });
+    // disable performance control when confirmed
+    this.markForm.get('performanceLevel')?.disable();
     this.submitMark();
   }
 

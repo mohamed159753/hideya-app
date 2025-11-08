@@ -28,8 +28,8 @@ export class ParticipationService {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 
-  // Updated to include categoryId
+  // Updated to include categoryId (mapped to backend's competitionCategoryId)
   registerMultiple(competitionId: string, categoryId: string, competitorIds: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register-multiple`, { competitionId, categoryId, competitorIds });
+    return this.http.post(`${this.apiUrl}/register-multiple`, { competitionId, competitionCategoryId: categoryId, competitorIds });
   }
 }
