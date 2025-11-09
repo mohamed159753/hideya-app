@@ -4,34 +4,58 @@ const Participation = require("../models/Participation");
 // Create or update a mark for a jury and participation
 exports.upsert = async (req, res) => {
   try {
-    const { juryId, participationId, questions, performanceLevel, confirmed } = req.body;
+    const { juryId, participationId, questions, performanceLevel, confirmed } =
+      req.body;
     if (!juryId || !participationId)
-      return res.status(400).json({ message: "juryId and participationId required" });
+      return res
+        .status(400)
+        .json({ message: "juryId and participationId required" });
 
     // Load participation to determine competition/category
     const participation = await Participation.findById(participationId);
-    if (!participation) return res.status(404).json({ message: "Participation not found" });
+    if (!participation)
+      return res.status(404).json({ message: "Participation not found" });
 
     // If the request attempts to modify memorization counters, ensure the juryId belongs to the president for that category
-    const triesToModifyMemorization = Array.isArray(questions) && questions.some(q => q && q.memorization && Object.keys(q.memorization).length > 0);
+    const triesToModifyMemorization =
+      Array.isArray(questions) &&
+      questions.some(
+        (q) => q && q.memorization && Object.keys(q.memorization).length > 0
+      );
+      /*
     if (triesToModifyMemorization) {
       // Lazy-load JuryAssignment to check roles
       const JuryAssignment = require("../models/JuryAssignment");
-      const ja = await JuryAssignment.findOne({ competitionId: participation.competitionId, categoryId: participation.categoryId });
+      const ja = await JuryAssignment.findOne({
+        competitionId: participation.competitionId,
+        categoryId: participation.categoryId,
+      });
       // If there's no assignment or no president, prevent non-president edits
-      if (!ja) return res.status(409).json({ message: "No jury assignment for this category" });
-      const presidentEntry = (ja.juryMembers || []).find(m => m.role === 'president');
-      if (!presidentEntry) return res.status(409).json({ message: "No president assigned for this jury" });
+      if (!ja)
+        return res
+          .status(409)
+          .json({ message: "No jury assignment for this category" });
+      const presidentEntry = (ja.juryMembers || []).find(
+        (m) => m.role === "president"
+      );
+      if (!presidentEntry)
+        return res
+          .status(409)
+          .json({ message: "No president assigned for this jury" });
       const presidentId = String(presidentEntry.userId);
       if (String(juryId) !== presidentId) {
-        return res.status(403).json({ message: "تقييم الحفظ محصور برئيس اللجنة فقط" });
+        return res
+          .status(403)
+          .json({ message: "تقييم الحفظ محصور برئيس اللجنة فقط" });
       }
-    }
+    } */
 
     let mark = await Mark.findOne({ juryId, participationId });
     if (mark) {
       if (mark.confirmed)
-        return res.status(409).json({ message: "Mark already confirmed and locked" });
+        return res
+          .status(409)
+          .json({ message: "Mark already confirmed and locked" });
       // update fields
       if (Array.isArray(questions)) mark.questions = questions;
       if (performanceLevel) mark.performanceLevel = performanceLevel;
