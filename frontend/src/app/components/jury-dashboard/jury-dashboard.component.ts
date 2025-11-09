@@ -145,85 +145,89 @@ export class JuryDashboardComponent implements OnInit {
   }
 
   openAssignment(assignment: any) {
-  this.selectedAssignment = assignment;
-  this.subcategoryBlocks = [];
-  this.participants = []; // Reset participants
+    this.selectedAssignment = assignment;
+    this.subcategoryBlocks = [];
+    this.participants = []; // Reset participants
 
-  const compId = assignment.competitionId?._id || assignment.competitionId;
-  const catId = assignment.categoryId?._id || assignment.categoryId;
+    const compId = assignment.competitionId?._id || assignment.competitionId;
+    const catId = assignment.categoryId?._id || assignment.categoryId;
 
-  console.log('Selected Assignment:', assignment);
-  console.log('Assignment IDs:', { compId, catId });
+    console.log('Selected Assignment:', assignment);
+    console.log('Assignment IDs:', { compId, catId });
 
-  if (!compId || !catId) {
-    console.error('Missing required IDs:', { compId, catId });
-    this.notify.error('بيانات المهمة غير مكتملة');
-    return;
-  }
+    if (!compId || !catId) {
+      console.error('Missing required IDs:', { compId, catId });
+      this.notify.error('بيانات المهمة غير مكتملة');
+      return;
+    }
 
-  // Get subCategoryId if it exists, otherwise use competitionCategoryId
-  const subCategoryId =
-    assignment.subCategory?._id ||
-    assignment.subCategory ||
-    assignment.competitionCategoryId?._id ||
-    assignment.competitionCategoryId;
+    // Get subCategoryId if it exists, otherwise use competitionCategoryId
+    const subCategoryId =
+      assignment.subCategory?._id ||
+      assignment.subCategory ||
+      assignment.competitionCategoryId?._id ||
+      assignment.competitionCategoryId;
 
-  console.log('Loading participations for:', {
-    compId,
-    catId,
-    subCategoryId,
-  });
+    console.log('Loading participations for:', {
+      compId,
+      catId,
+      subCategoryId,
+    });
 
-  // First get all participations for this competition category
-  this.participationService
-    .getByCategory(compId, catId, subCategoryId)
-    .subscribe({
-      next: (allParticipations) => {
-        console.log('All participations loaded:', allParticipations);
+    // First get all participations for this competition category
+    this.participationService
+      .getByCategory(compId, catId, subCategoryId)
+      .subscribe({
+        next: (allParticipations) => {
+          console.log('All participations loaded:', allParticipations);
 
-        if (!allParticipations || allParticipations.length === 0) {
-          console.log('No participations found for this assignment');
+          if (!allParticipations || allParticipations.length === 0) {
+            console.log('No participations found for this assignment');
+            this.participants = [];
+            this.subcategoryBlocks = [];
+            return;
+          }
+
+          // Simply assign all participations directly
+          this.participants = allParticipations;
+
+          // If you have a competitionCategoryId on the assignment, create a single block
+          if (assignment.competitionCategoryId) {
+            this.subcategoryBlocks = [
+              {
+                cc: assignment.competitionCategoryId,
+                participants: allParticipations,
+              },
+            ];
+          } else {
+            // Otherwise just show all participants without subcategory grouping
+            this.subcategoryBlocks = [
+              {
+                cc: {
+                  categoryId: assignment.categoryId,
+                  ageGroupId: null,
+                  gender: null,
+                },
+                participants: allParticipations,
+              },
+            ];
+          }
+
+          console.log('Subcategory blocks created:', this.subcategoryBlocks);
+          console.log('Total participants:', this.participants.length);
+
+          // Load marks for participants
+          this.loadMarksForParticipants();
+          this.updateResultsAvailability();
+        },
+        error: (err) => {
+          console.error('Error loading participations:', err);
+          this.notify.error('حدث خطأ في تحميل المشاركين');
           this.participants = [];
           this.subcategoryBlocks = [];
-          return;
-        }
-
-        // Simply assign all participations directly
-        this.participants = allParticipations;
-        
-        // If you have a competitionCategoryId on the assignment, create a single block
-        if (assignment.competitionCategoryId) {
-          this.subcategoryBlocks = [{
-            cc: assignment.competitionCategoryId,
-            participants: allParticipations
-          }];
-        } else {
-          // Otherwise just show all participants without subcategory grouping
-          this.subcategoryBlocks = [{
-            cc: { 
-              categoryId: assignment.categoryId,
-              ageGroupId: null,
-              gender: null
-            },
-            participants: allParticipations
-          }];
-        }
-
-        console.log('Subcategory blocks created:', this.subcategoryBlocks);
-        console.log('Total participants:', this.participants.length);
-
-        // Load marks for participants
-        this.loadMarksForParticipants();
-        this.updateResultsAvailability();
-      },
-      error: (err) => {
-        console.error('Error loading participations:', err);
-        this.notify.error('حدث خطأ في تحميل المشاركين');
-        this.participants = [];
-        this.subcategoryBlocks = [];
-      },
-    });
-}
+        },
+      });
+  }
 
   private groupParticipationsByCategory(
     competitionCategories: any[],
@@ -793,5 +797,19 @@ export class JuryDashboardComponent implements OnInit {
     if (r.includes('invalid')) return 'معرّف المسابقة أو الفئة غير صالح';
     // fallback: return original reason if likely already Arabic, else return it unchanged
     return reason;
+  }
+  // Add this method to your component class
+  backToTasks() {
+    this.selectedAssignment = null;
+    this.subcategoryBlocks = [];
+    this.participants = [];
+    this.resultsMessage = '';
+    this.canShowResults = false;
+  }
+
+  // Add this hover handler method
+  onBackButtonHover(event: any, isHovering: boolean) {
+    const element = event.currentTarget;
+    element.style.background = isHovering ? '#555' : '#666';
   }
 }

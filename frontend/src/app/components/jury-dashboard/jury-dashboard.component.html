@@ -29,9 +29,40 @@
     </p>
   </div>
 
+  <!-- Back Button (Show only when assignment is selected) -->
+  <div *ngIf="selectedAssignment" style="margin-bottom: 20px">
+    <button
+      style="
+        background: #666;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-bottom: 16px;
+      "
+      (click)="backToTasks()"
+      (mouseenter)="onBackButtonHover($event, true)"
+      (mouseleave)="onBackButtonHover($event, false)"
+    >
+      ← العودة إلى المهام
+    </button>
+  </div>
+
   <!-- Results Button -->
-  <div style="text-align: left; margin-bottom: 20px">
-  <div style="display:flex; align-items:center; gap:12px; justify-content:flex-end; width:100%">
+  <div *ngIf="selectedAssignment" style="text-align: left; margin-bottom: 20px">
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        justify-content: flex-end;
+        width: 100%;
+      "
+    >
       <button
         style="
           background: #1b5e20;
@@ -46,8 +77,14 @@
         "
         (click)="checkAndShowResults()"
         [disabled]="!canShowResults || !selectedAssignment?.categoryId"
-        [style.opacity]="(!canShowResults || !selectedAssignment?.categoryId) ? '0.6' : '1'"
-        [style.cursor]="(!canShowResults || !selectedAssignment?.categoryId) ? 'not-allowed' : 'pointer'"
+        [style.opacity]="
+          !canShowResults || !selectedAssignment?.categoryId ? '0.6' : '1'
+        "
+        [style.cursor]="
+          !canShowResults || !selectedAssignment?.categoryId
+            ? 'not-allowed'
+            : 'pointer'
+        "
         (mouseenter)="onTaskCardHover($event, true)"
         (mouseleave)="onTaskCardHover($event, false)"
         title="الرجاء اختيار فئة/مهمة قبل عرض النتائج النهائية"
@@ -55,7 +92,10 @@
         عرض النتائج النهائية
       </button>
 
-      <span *ngIf="!selectedAssignment?.categoryId" style="color: #d32f2f; font-size: 14px">
+      <span
+        *ngIf="!selectedAssignment?.categoryId"
+        style="color: #d32f2f; font-size: 14px"
+      >
         اختر فئة أولاً
       </span>
     </div>
@@ -67,8 +107,9 @@
       {{ resultsMessage }}
     </div>
   </div>
-  <!-- Tasks Section -->
-  <div style="margin-bottom: 32px">
+
+  <!-- Tasks Section (Hidden when assignment is selected) -->
+  <div *ngIf="!selectedAssignment" style="margin-bottom: 32px">
     <h2
       style="
         color: #1b5e20;
@@ -152,11 +193,22 @@
         <div style="color: #666666; font-size: 14px; margin-bottom: 12px">
           <div>
             <strong>الفئة:</strong>
-            {{ assignment.competitionCategoryId?.categoryId?.name || assignment.categoryId?.name || '-' }}
-              — {{ assignment.competitionCategoryId?.ageGroupId?.name }}
-              {{ assignment.subCategory }}
+            {{
+              assignment.competitionCategoryId?.categoryId?.name ||
+                assignment.categoryId?.name ||
+                "-"
+            }}
+            — {{ assignment.competitionCategoryId?.ageGroupId?.name }}
+            {{ assignment.subCategory }}
             <span *ngIf="assignment.competitionCategoryId?.gender">
-              — {{ assignment.competitionCategoryId?.gender === 'male' ? 'ذكور' : (assignment.competitionCategoryId?.gender === 'female' ? 'إناث' : assignment.competitionCategoryId?.gender) }}
+              —
+              {{
+                assignment.competitionCategoryId?.gender === "male"
+                  ? "ذكور"
+                  : assignment.competitionCategoryId?.gender === "female"
+                  ? "إناث"
+                  : assignment.competitionCategoryId?.gender
+              }}
             </span>
           </div>
           <div><strong>القاعة:</strong> {{ assignment.classRoom || "-" }}</div>
@@ -183,28 +235,81 @@
     </div>
   </div>
 
-  <!-- Competitors Section per Subcategory -->
+  <!-- Competitors Section (Show only when assignment is selected) -->
   <div *ngIf="selectedAssignment">
-    <div *ngFor="let block of subcategoryBlocks" style="
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-      margin-bottom: 24px;">
+    <!-- Current Assignment Info -->
+    <div
+      style="
+        background: #e8f5e9;
+        border: 1px solid #2d8c4a;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+      "
+    >
+      <h3 style="color: #1b5e20; margin: 0 0 8px 0; font-size: 18px">
+        {{ selectedAssignment.competitionId?.title || "مسابقة" }}
+      </h3>
+      <div style="color: #666666; font-size: 14px">
+        <div>
+          <strong>الفئة:</strong>
+          {{
+            selectedAssignment.competitionCategoryId?.categoryId?.name ||
+              selectedAssignment.categoryId?.name ||
+              "-"
+          }}
+          — {{ selectedAssignment.competitionCategoryId?.ageGroupId?.name }}
+          <span *ngIf="selectedAssignment.competitionCategoryId?.gender">
+            —
+            {{
+              selectedAssignment.competitionCategoryId?.gender === "male"
+                ? "ذكور"
+                : selectedAssignment.competitionCategoryId?.gender === "female"
+                ? "إناث"
+                : selectedAssignment.competitionCategoryId?.gender
+            }}
+          </span>
+        </div>
+        <div>
+          <strong>القاعة:</strong> {{ selectedAssignment.classRoom || "-" }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngFor="let block of subcategoryBlocks"
+      style="
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+      "
+    >
       <div style="margin-bottom: 20px">
-        <h2 style="
+        <h2
+          style="
             color: #1b5e20;
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 2px solid #e8f5e9;">
-          المشاركون - {{ block.cc?.categoryId?.name || '-' }}
+            border-bottom: 2px solid #e8f5e9;
+          "
+        >
+          المشاركون - {{ block.cc?.categoryId?.name || "-" }}
           <span *ngIf="block.cc?.ageGroupId?.name">
             — {{ block.cc?.ageGroupId?.name }}
           </span>
           <span *ngIf="block.cc?.gender">
-            — {{ block.cc?.gender === 'male' ? 'ذكور' : (block.cc?.gender === 'female' ? 'إناث' : block.cc?.gender) }}
+            —
+            {{
+              block.cc?.gender === "male"
+                ? "ذكور"
+                : block.cc?.gender === "female"
+                ? "إناث"
+                : block.cc?.gender
+            }}
           </span>
         </h2>
         <p style="color: #666666; font-size: 14px; margin-top: 8px">
@@ -212,29 +317,40 @@
         </p>
       </div>
 
-      <div *ngIf="block.participants.length === 0" style="text-align: center; padding: 40px 20px; color: #666666">
+      <div
+        *ngIf="block.participants.length === 0"
+        style="text-align: center; padding: 40px 20px; color: #666666"
+      >
         <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5">👥</div>
         <h3>لا توجد مشاركات</h3>
         <p>لا توجد مشاركات في هذه الفئة الفرعية حالياً</p>
       </div>
 
-      <div style="
+      <div
+        style="
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 16px;
-          margin-top: 16px;">
-        <div *ngFor="let participant of participants" style="
+          margin-top: 16px;
+        "
+      >
+        <div
+          *ngFor="let participant of block.participants"
+          style="
             background: #ffffff;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
             padding: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-align: center;"
-            (click)="openMarkModal(participant)"
-            (mouseenter)="onCompetitorCardHover($event, true)"
-            (mouseleave)="onCompetitorCardHover($event, false)">
-          <div style="
+            text-align: center;
+          "
+          (click)="openMarkModal(participant)"
+          (mouseenter)="onCompetitorCardHover($event, true)"
+          (mouseleave)="onCompetitorCardHover($event, false)"
+        >
+          <div
+            style="
               width: 60px;
               height: 60px;
               background: linear-gradient(135deg, #2d8c4a, #4caf50);
@@ -245,11 +361,20 @@
               justify-content: center;
               color: #ffffff;
               font-size: 20px;
-              font-weight: 600;">
+              font-weight: 600;
+            "
+          >
             {{ getInitials(participant) }}
           </div>
 
-          <h4 style="font-size: 16px; font-weight: 600; color: #333333; margin-bottom: 4px;">
+          <h4
+            style="
+              font-size: 16px;
+              font-weight: 600;
+              color: #333333;
+              margin-bottom: 4px;
+            "
+          >
             {{ participant.competitorId?.firstName }}
             {{ participant.competitorId?.lastName }}
           </h4>
@@ -258,7 +383,8 @@
             #{{ participant._id | slice : 0 : 8 }}
           </div>
 
-          <button style="
+          <button
+            style="
               background: #2d8c4a;
               color: #ffffff;
               border: none;
@@ -267,10 +393,12 @@
               font-size: 14px;
               cursor: pointer;
               transition: background 0.3s ease;
-              width: 100%;"
-              (mouseenter)="onMarkButtonHover($event, true)"
-              (mouseleave)="onMarkButtonHover($event, false)">
-            {{ isMarked(participant) ? 'تعديل العلامة' : 'وضع علامة' }}
+              width: 100%;
+            "
+            (mouseenter)="onMarkButtonHover($event, true)"
+            (mouseleave)="onMarkButtonHover($event, false)"
+          >
+            {{ isMarked(participant) ? "تعديل العلامة" : "وضع علامة" }}
           </button>
         </div>
       </div>
