@@ -151,7 +151,6 @@ export class AdminAddComponent {
       lastName: ['', Validators.required],
       age: ['', [Validators.required, Validators.min(5)]],
       gender: ['', Validators.required], // ✅ ADDED
-      classLevel: ['', Validators.required],
       branch: ['', Validators.required],
       surahFrom: ['', Validators.required],
       surahTo: ['', Validators.required],
@@ -193,7 +192,6 @@ export class AdminAddComponent {
       lastName: formValue.lastName,
       age: formValue.age,
       gender: formValue.gender, // ✅ ADDED
-      classLevel: formValue.classLevel,
       branch: formValue.branch,
       surahRange: {
         from: formValue.surahFrom,
@@ -223,7 +221,6 @@ export class AdminAddComponent {
       lastName: competitor.lastName,
       age: competitor.age,
       gender: competitor.gender, // ✅ ADDED
-      classLevel: competitor.classLevel,
       branch: competitor.branch,
       surahFrom: competitor.surahRange?.from || '',
       surahTo: competitor.surahRange?.to || '',

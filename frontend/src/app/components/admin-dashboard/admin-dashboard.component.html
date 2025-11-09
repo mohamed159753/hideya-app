@@ -2,35 +2,191 @@
   <div class="dashboard">
     <!-- Main content area -->
     <section class="content card">
-      <div *ngIf="currentTab === 'overview'">
-        <h2>نظرة عامة</h2>
-        <p>احصائيات سريعة وروابط سريعة للوصول إلى أجزاء الإدارة.</p>
+      
+      <!-- Overview Tab Content -->
+      <div *ngIf="currentTab === 'overview'" class="overview-container">
+        <div class="overview-header">
+          <h2>نظرة عامة على النظام</h2>
+          <button class="refresh-btn" (click)="refreshDashboard()" [disabled]="loading">
+            <span class="refresh-icon">↻</span>
+            تحديث البيانات
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>جاري تحميل البيانات...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="error-state">
+          <div class="error-icon">⚠</div>
+          <p>{{ error }}</p>
+          <button class="retry-btn" (click)="refreshDashboard()">إعادة المحاولة</button>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div *ngIf="stats && !loading" class="dashboard-content">
+          
+          <!-- Statistics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon competition">
+                <span class="icon">🏆</span>
+              </div>
+              <div class="stat-info">
+                <h3>{{ stats.totalCompetitions }}</h3>
+                <p>إجمالي المسابقات</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon active">
+                <span class="icon">📅</span>
+              </div>
+              <div class="stat-info">
+                <h3>{{ stats.activeCompetitions }}</h3>
+                <p>مسابقات نشطة</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon participants">
+                <span class="icon">👥</span>
+              </div>
+              <div class="stat-info">
+                <h3>{{ stats.totalParticipants }}</h3>
+                <p>إجمالي المتسابقين</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon jury">
+                <span class="icon">⚖️</span>
+              </div>
+              <div class="stat-info">
+                <h3>{{ stats.totalJuryMembers }}</h3>
+                <p>أعضاء لجنة التحكيم</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evaluation Progress -->
+          <div class="progress-section">
+            <div class="progress-card">
+              <h3>تقدم التقييمات</h3>
+              <div class="progress-stats">
+                <div class="progress-item completed">
+                  <span class="progress-label">مكتمل</span>
+                  <span class="progress-value">{{ stats.completedEvaluations }}</span>
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="getCompletionPercentage()"></div>
+                  </div>
+                </div>
+                <div class="progress-item pending">
+                  <span class="progress-label">معلق</span>
+                  <span class="progress-value">{{ stats.pendingEvaluations }}</span>
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="getPendingPercentage()"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="total-evaluations">
+                إجمالي التقييمات: {{ stats.completedEvaluations + stats.pendingEvaluations }}
+              </div>
+            </div>
+
+            <div class="competition-progress">
+              <h3>تقدم المسابقات</h3>
+              <div class="competition-list">
+                <div *ngFor="let comp of stats.competitionProgress" class="competition-item">
+                  <div class="comp-name">{{ comp.competitionTitle }}</div>
+                  <div class="comp-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="comp.progressPercentage"></div>
+                    </div>
+                    <span class="progress-percent">{{ comp.progressPercentage }}%</span>
+                  </div>
+                  <div class="comp-stats">
+                    {{ comp.evaluatedParticipants }}/{{ comp.totalParticipants }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h3>روابط سريعة</h3>
+            <div class="actions-grid">
+              <button class="action-btn" (click)="selectTab('competitions')">
+                <span class="action-icon">➕</span>
+                <span class="action-text">إدارة المسابقات</span>
+              </button>
+              <button class="action-btn" (click)="selectTab('participants')">
+                <span class="action-icon">👤</span>
+                <span class="action-text">إضافة متسابقين</span>
+              </button>
+              <button class="action-btn" (click)="selectTab('users')">
+                <span class="action-icon">👨‍⚖️</span>
+                <span class="action-text">إدارة المحكمين</span>
+              </button>
+              <button class="action-btn" (click)="selectTab('participations')">
+                <span class="action-icon">📋</span>
+                <span class="action-text">إدارة المشاركات</span>
+              </button>
+              <button class="action-btn" (click)="selectTab('categories')">
+                <span class="action-icon">📂</span>
+                <span class="action-text">الفئات</span>
+              </button>
+              <button class="action-btn" (click)="selectTab('branches')">
+                <span class="action-icon">🏢</span>
+                <span class="action-text">الفروع</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activities -->
+          <div class="recent-activities">
+            <h3>آخر النشاطات</h3>
+            <div class="activities-list">
+              <div *ngFor="let activity of stats.recentActivities" class="activity-item">
+                <div class="activity-icon">
+                  <span>📝</span>
+                </div>
+                <div class="activity-details">
+                  <p class="activity-action">{{ activity.action }}</p>
+                  <p class="activity-meta">
+                    بواسطة {{ activity.user }} • {{ activity.competition }}
+                  </p>
+                </div>
+                <div class="activity-time">
+                  {{ activity.timestamp | date:'short' }}
+                </div>
+              </div>
+              
+              <div *ngIf="stats.recentActivities.length === 0" class="no-activities">
+                <p>لا توجد نشاطات حديثة</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- users / jury members management -->
+      <!-- Other Tabs Content -->
       <app-admin-user *ngIf="currentTab === 'users'"></app-admin-user>
-      <!-- competitors / add -->
       <app-admin-add *ngIf="currentTab === 'participants'"></app-admin-add>
-      <app-admin-competition
-        *ngIf="currentTab === 'competitions'"
-      ></app-admin-competition>
-      <!-- participation management -->
-      <app-admin-participation
-        *ngIf="currentTab === 'participations'"
-      ></app-admin-participation>
-
-      <app-admin-category
-        *ngIf="currentTab === 'categories'"
-      ></app-admin-category>
-
-      <app-branch-management
-        *ngIf="currentTab === 'branches'"
-      ></app-branch-management>
-
-      <!-- jury management / quick access -->
+      <app-admin-competition *ngIf="currentTab === 'competitions'"></app-admin-competition>
+      <app-admin-participation *ngIf="currentTab === 'participations'"></app-admin-participation>
+      <app-admin-category *ngIf="currentTab === 'categories'"></app-admin-category>
+      <app-branch-management *ngIf="currentTab === 'branches'"></app-branch-management>
+      <app-age-group *ngIf="currentTab === 'age-groups'"></app-age-group>
       <app-jury-dashboard *ngIf="currentTab === 'jury'"></app-jury-dashboard>
+
     </section>
-    <!-- Right-side Tabs (since dir=rtl we use row-reverse) -->
+    
+    <!-- Right-side Tabs -->
     <aside class="sidebar card">
       <h3 class="sidebar-title">لوحة المسؤول</h3>
       <nav class="tabs">

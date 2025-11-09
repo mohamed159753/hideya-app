@@ -12,6 +12,9 @@ const branchRoutes = require("./routes/branchRoutes");
 const groupAgeRoutes = require("./routes/ageGroupRoutes");
 const competitionCategoryRoutes = require("./routes/competitionCategories");
 
+const dashboardRoutes = require('./routes/dashboard');
+
+
 
 const app = express();
 app.use(cors());
@@ -35,6 +38,8 @@ app.use('/api/jury-results', juryResultsRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/age-groups", groupAgeRoutes);
 app.use("/api/competition-categories", competitionCategoryRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
 
 
 
