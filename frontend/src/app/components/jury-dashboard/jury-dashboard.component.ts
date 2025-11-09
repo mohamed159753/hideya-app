@@ -14,6 +14,9 @@ import { MarkService } from '../../services/mark.service';
 import { NotificationService } from '../../services/notification.service';
 import { ResultsService } from '../../services/results.service';
 import { Router } from '@angular/router';
+import { CompetitionCategoryService } from '../../services/competetion-category.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-jury-dashboard',
@@ -28,6 +31,7 @@ export class JuryDashboardComponent implements OnInit {
 
   // modal / marking state
   participants: any[] = [];
+  subcategoryBlocks: { cc: any; participants: any[] }[] = [];
   selectedAssignment: any = null;
   selectedParticipation: any = null;
   isPresidentForSelected: boolean = false;
@@ -35,6 +39,7 @@ export class JuryDashboardComponent implements OnInit {
   markForm!: FormGroup;
   loadingMark = false;
   defaultQuestionCount = 3;
+  participations = [];
 
   canShowResults: boolean = false;
   resultsMessage: string = '';
@@ -51,7 +56,8 @@ export class JuryDashboardComponent implements OnInit {
     private fb: FormBuilder,
     private notify: NotificationService,
     private resultsService: ResultsService,
-    private router: Router
+    private router: Router,
+    private ccService: CompetitionCategoryService
   ) {}
 
   ngOnInit() {
@@ -64,6 +70,7 @@ export class JuryDashboardComponent implements OnInit {
     }
     this.initMarkForm();
   }
+
   checkUserRole() {
     this.isPresident = this.assignments.some((assignment) =>
       assignment.juryMembers?.some((member: any) => {
@@ -75,6 +82,7 @@ export class JuryDashboardComponent implements OnInit {
       })
     );
   }
+
   // Check if results can be shown
   checkAndShowResults() {
     if (!this.selectedAssignment) {
@@ -85,7 +93,12 @@ export class JuryDashboardComponent implements OnInit {
     const compId =
       this.selectedAssignment.competitionId?._id ||
       this.selectedAssignment.competitionId;
+
+    // Derive categoryId from competitionCategoryId when assignments target subcategories
+    const cc = this.selectedAssignment.competitionCategoryId;
     const catId =
+      cc?.categoryId?._id ||
+      cc?.categoryId ||
       this.selectedAssignment.categoryId?._id ||
       this.selectedAssignment.categoryId;
 
@@ -93,21 +106,28 @@ export class JuryDashboardComponent implements OnInit {
     this.resultsService.check(compId, catId, requestedBy).subscribe({
       next: (response: any) => {
         if (response.allowed) {
-          // Save final results to DB (for traceability) and navigate to the saved result
-          this.resultsService.saveFinalResults({ competitionId: compId, categoryId: catId, requestedBy }).subscribe(
-            (saved: any) => {
-              if (saved && saved._id) {
-                this.router.navigate(['/results', saved._id]);
-              } else {
-                this.resultsMessage = 'فشل حفظ النتائج النهائية';
+          this.resultsService
+            .saveFinalResults({
+              competitionId: compId,
+              categoryId: catId,
+              requestedBy,
+            })
+            .subscribe(
+              (saved: any) => {
+                if (saved && saved._id) {
+                  this.router.navigate(['/results', saved._id]);
+                } else {
+                  this.resultsMessage = 'فشل حفظ النتائج النهائية';
+                }
+              },
+              (err) => {
+                console.error('Error saving final results:', err);
               }
-            },
-            (err) => {
-              console.error('Error saving final results:', err);
-            }
-          );
+            );
         } else {
-          this.resultsMessage = this.translateReason(response.reason) || 'لا يمكن عرض النتائج حالياً';
+          this.resultsMessage =
+            this.translateReason(response.reason) ||
+            'لا يمكن عرض النتائج حالياً';
         }
       },
       error: (error) => {
@@ -124,23 +144,130 @@ export class JuryDashboardComponent implements OnInit {
     });
   }
 
-  // Update the canShowResults property when assignment is selected
   openAssignment(assignment: any) {
-    this.selectedAssignment = assignment;
-    const compId = assignment.competitionId?._id || assignment.competitionId;
-    const catId = assignment.categoryId?._id || assignment.categoryId;
+  this.selectedAssignment = assignment;
+  this.subcategoryBlocks = [];
+  this.participants = []; // Reset participants
 
-    if (!compId) return;
+  const compId = assignment.competitionId?._id || assignment.competitionId;
+  const catId = assignment.categoryId?._id || assignment.categoryId;
 
-    this.participationService.getByCompetition(compId).subscribe((list) => {
-      this.participants = (list || []).filter(
-        (p: any) => (p.categoryId?._id || p.categoryId) == catId
+  console.log('Selected Assignment:', assignment);
+  console.log('Assignment IDs:', { compId, catId });
+
+  if (!compId || !catId) {
+    console.error('Missing required IDs:', { compId, catId });
+    this.notify.error('بيانات المهمة غير مكتملة');
+    return;
+  }
+
+  // Get subCategoryId if it exists, otherwise use competitionCategoryId
+  const subCategoryId =
+    assignment.subCategory?._id ||
+    assignment.subCategory ||
+    assignment.competitionCategoryId?._id ||
+    assignment.competitionCategoryId;
+
+  console.log('Loading participations for:', {
+    compId,
+    catId,
+    subCategoryId,
+  });
+
+  // First get all participations for this competition category
+  this.participationService
+    .getByCategory(compId, catId, subCategoryId)
+    .subscribe({
+      next: (allParticipations) => {
+        console.log('All participations loaded:', allParticipations);
+
+        if (!allParticipations || allParticipations.length === 0) {
+          console.log('No participations found for this assignment');
+          this.participants = [];
+          this.subcategoryBlocks = [];
+          return;
+        }
+
+        // Simply assign all participations directly
+        this.participants = allParticipations;
+        
+        // If you have a competitionCategoryId on the assignment, create a single block
+        if (assignment.competitionCategoryId) {
+          this.subcategoryBlocks = [{
+            cc: assignment.competitionCategoryId,
+            participants: allParticipations
+          }];
+        } else {
+          // Otherwise just show all participants without subcategory grouping
+          this.subcategoryBlocks = [{
+            cc: { 
+              categoryId: assignment.categoryId,
+              ageGroupId: null,
+              gender: null
+            },
+            participants: allParticipations
+          }];
+        }
+
+        console.log('Subcategory blocks created:', this.subcategoryBlocks);
+        console.log('Total participants:', this.participants.length);
+
+        // Load marks for participants
+        this.loadMarksForParticipants();
+        this.updateResultsAvailability();
+      },
+      error: (err) => {
+        console.error('Error loading participations:', err);
+        this.notify.error('حدث خطأ في تحميل المشاركين');
+        this.participants = [];
+        this.subcategoryBlocks = [];
+      },
+    });
+}
+
+  private groupParticipationsByCategory(
+    competitionCategories: any[],
+    allParticipations: any[]
+  ) {
+    if (competitionCategories.length === 0) {
+      console.log('No competition categories to display');
+      this.finalizeParticipants();
+      return;
+    }
+
+    // Group participations by their competition category ID
+    this.subcategoryBlocks = competitionCategories.map((cc: any) => {
+      const ccId = cc._id || cc;
+
+      // Filter participations that belong to this competition category
+      const participants = allParticipations.filter((p: any) => {
+        const pCcId = p.competitionCategoryId?._id || p.competitionCategoryId;
+        return pCcId === ccId;
+      });
+
+      console.log(
+        `Competition category ${ccId} has ${participants.length} participants`
       );
 
-      // Load marks and check if results can be shown
-      this.loadMarksForParticipants();
-      this.updateResultsAvailability();
+      return {
+        cc: cc,
+        participants: participants,
+      };
     });
+
+    console.log('All subcategory blocks grouped:', this.subcategoryBlocks);
+    this.finalizeParticipants();
+  }
+
+  private finalizeParticipants() {
+    // Flatten all participants for marking purposes
+    this.participants = this.subcategoryBlocks.flatMap((b) => b.participants);
+
+    console.log('Final subcategory blocks:', this.subcategoryBlocks);
+    console.log('Total participants:', this.participants.length);
+
+    this.loadMarksForParticipants();
+    this.updateResultsAvailability();
   }
 
   updateResultsAvailability() {
@@ -149,7 +276,11 @@ export class JuryDashboardComponent implements OnInit {
     const compId =
       this.selectedAssignment.competitionId?._id ||
       this.selectedAssignment.competitionId;
+
+    const cc = this.selectedAssignment.competitionCategoryId;
     const catId =
+      cc?.categoryId?._id ||
+      cc?.categoryId ||
       this.selectedAssignment.categoryId?._id ||
       this.selectedAssignment.categoryId;
 
@@ -161,6 +292,7 @@ export class JuryDashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating results availability:', error);
+        this.resultsMessage = 'حدث خطأ في التحقق من النتائج';
       },
     });
   }
@@ -169,13 +301,33 @@ export class JuryDashboardComponent implements OnInit {
     const juryId = this.currentUser.id || this.currentUser._id;
     this.markedParticipants.clear();
 
+    if (this.participants.length === 0) return;
+
+    let loadedCount = 0;
+    const totalParticipants = this.participants.length;
+
     this.participants.forEach((participant) => {
       this.markService
         .getByJuryAndParticipation(juryId, participant._id)
-        .subscribe((mark: any) => {
-          if (mark) {
-            this.markedParticipants.add(participant._id);
-          }
+        .subscribe({
+          next: (mark: any) => {
+            if (mark) {
+              this.markedParticipants.add(participant._id);
+            }
+            loadedCount++;
+
+            if (loadedCount === totalParticipants) {
+              console.log('Finished loading marks for all participants');
+            }
+          },
+          error: (err) => {
+            console.error(
+              'Error loading mark for participant:',
+              participant._id,
+              err
+            );
+            loadedCount++;
+          },
         });
     });
   }
@@ -528,7 +680,6 @@ export class JuryDashboardComponent implements OnInit {
     }
     return tot;
   }
-  // Add these methods to your jury-dashboard.component.ts
 
   // Hover methods for interactive elements
   onTaskCardHover(event: any, isHovering: boolean) {
@@ -586,12 +737,18 @@ export class JuryDashboardComponent implements OnInit {
     this.resultsService.check(compId, catId, requestedBy).subscribe(
       (res: any) => {
         if (!res?.allowed) {
-          this.notify.error(this.translateReason(res?.reason) || 'غير مسموح بعرض النتائج الآن');
+          this.notify.error(
+            this.translateReason(res?.reason) || 'غير مسموح بعرض النتائج الآن'
+          );
           return;
         }
         this.notify.info('جارٍ تجهيز النتائج...');
         this.resultsService
-          .saveFinalResults({ competitionId: compId, categoryId: catId, requestedBy })
+          .saveFinalResults({
+            competitionId: compId,
+            categoryId: catId,
+            requestedBy,
+          })
           .subscribe(
             (result: any) => {
               if (result && result._id) {
@@ -616,9 +773,22 @@ export class JuryDashboardComponent implements OnInit {
   translateReason(reason?: string) {
     if (!reason) return '';
     const r = String(reason).toLowerCase();
-    if (r.includes('president') || r.includes('override')) return 'مسموح بتجاوز الرئيس';
-    if (r.includes('not all') || r.includes('not all marks') || r.includes('not all marks submitted') || r.includes('not all')) return 'لم يتم وضع علامات لجميع الحكام';
-    if (r.includes('all jury') || r.includes('all jury members') || r.includes('all jury members submitted marks') || r.includes('all')) return 'جميع الحكام قد وضعوا علامات';
+    if (r.includes('president') || r.includes('override'))
+      return 'مسموح بتجاوز الرئيس';
+    if (
+      r.includes('not all') ||
+      r.includes('not all marks') ||
+      r.includes('not all marks submitted') ||
+      r.includes('not all')
+    )
+      return 'لم يتم وضع علامات لجميع الحكام';
+    if (
+      r.includes('all jury') ||
+      r.includes('all jury members') ||
+      r.includes('all jury members submitted marks') ||
+      r.includes('all')
+    )
+      return 'جميع الحكام قد وضعوا علامات';
     if (r.includes('no jury')) return 'لا توجد لجان محكّمة مخصصة لهذه الفئة';
     if (r.includes('invalid')) return 'معرّف المسابقة أو الفئة غير صالح';
     // fallback: return original reason if likely already Arabic, else return it unchanged

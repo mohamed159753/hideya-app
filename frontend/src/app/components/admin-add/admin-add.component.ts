@@ -150,7 +150,7 @@ export class AdminAddComponent {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       age: ['', [Validators.required, Validators.min(5)]],
-      gender: ['', Validators.required], // ✅ ADDED
+      gender: ['', Validators.required],
       branch: ['', Validators.required],
       surahFrom: ['', Validators.required],
       surahTo: ['', Validators.required],
@@ -191,7 +191,7 @@ export class AdminAddComponent {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       age: formValue.age,
-      gender: formValue.gender, // ✅ ADDED
+      gender: formValue.gender,
       branch: formValue.branch,
       surahRange: {
         from: formValue.surahFrom,
@@ -220,7 +220,7 @@ export class AdminAddComponent {
       firstName: competitor.firstName,
       lastName: competitor.lastName,
       age: competitor.age,
-      gender: competitor.gender, // ✅ ADDED
+      gender: competitor.gender,
       branch: competitor.branch,
       surahFrom: competitor.surahRange?.from || '',
       surahTo: competitor.surahRange?.to || '',

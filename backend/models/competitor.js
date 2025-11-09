@@ -9,7 +9,6 @@ const competitorSchema = new mongoose.Schema({
   gender: { type: String, enum: ["ذكر", "أنثى"], required: true },
 
 
-
   branch: {
   type: mongoose.Schema.Types.ObjectId,
   ref: "Branch",
