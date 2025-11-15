@@ -1,0 +1,431 @@
+<div class="admin-results-container" dir="rtl" style="
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #f5f5f5;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+">
+  <!-- Header -->
+  <div style="
+    background: linear-gradient(135deg, #1b5e20, #2d8c4a);
+    color: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  ">
+    <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 600;">
+      لوحة تحكم النتائج - المدير
+    </h1>
+    <p style="margin: 0; opacity: 0.9; font-size: 16px;">
+      عرض وإدارة نتائج جميع المسابقات
+    </p>
+  </div>
+
+  <!-- Filters Section -->
+  <div style="
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  ">
+    <h3 style="margin: 0 0 16px 0; color: #1b5e20; font-size: 18px;">
+      🔍 تصفية النتائج
+    </h3>
+    
+    <div style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    ">
+      <!-- Competition Filter -->
+      <div>
+        <label style="
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #333;
+          font-size: 14px;
+        ">
+          المسابقة
+        </label>
+        <select
+          [(ngModel)]="selectedCompetitionId"
+          (change)="applyFilters()"
+          style="
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #ffffff;
+          "
+        >
+          <option value="">جميع المسابقات</option>
+          <option *ngFor="let comp of competitions" [value]="comp._id">
+            {{ comp.title }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Category Filter -->
+      <div>
+        <label style="
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #333;
+          font-size: 14px;
+        ">
+          الفئة
+        </label>
+        <select
+          [(ngModel)]="selectedCategoryId"
+          (change)="applyFilters()"
+          style="
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #ffffff;
+          "
+        >
+          <option value="">جميع الفئات</option>
+          <option *ngFor="let cat of categories" [value]="cat._id">
+            {{ cat.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- SubCategory Filter -->
+      <div>
+        <label style="
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #333;
+          font-size: 14px;
+        ">
+          الفئة الفرعية
+        </label>
+        <select
+          [(ngModel)]="selectedSubCategory"
+          (change)="applyFilters()"
+          style="
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #ffffff;
+          "
+        >
+          <option value="">جميع الفئات الفرعية</option>
+          <option *ngFor="let subCat of getUniqueSubCategories()" [value]="subCat">
+            {{ getSubCategoryDisplayName(subCat) }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <button
+        (click)="resetFilters()"
+        style="
+          background: #666666;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.3s ease;
+        "
+      >
+        🔄 إعادة تعيين
+      </button>
+
+      <button
+        (click)="exportAllResults()"
+        style="
+          background: #1b5e20;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.3s ease;
+        "
+      >
+        📊 تصدير النتائج
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div style="
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  ">
+    <div style="
+      background: linear-gradient(135deg, #4caf50, #2d8c4a);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    ">
+      <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">
+        إجمالي النتائج
+      </div>
+      <div style="font-size: 32px; font-weight: 700;">
+        {{ filteredResults.length }}
+      </div>
+    </div>
+
+    <div style="
+      background: linear-gradient(135deg, #2196f3, #1976d2);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    ">
+      <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">
+        المسابقات النشطة
+      </div>
+      <div style="font-size: 32px; font-weight: 700;">
+        {{ competitions.length }}
+      </div>
+    </div>
+
+    <div style="
+      background: linear-gradient(135deg, #ff9800, #f57c00);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    ">
+      <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">
+        الفئات المتاحة
+      </div>
+      <div style="font-size: 32px; font-weight: 700;">
+        {{ categories.length }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" style="
+    text-align: center;
+    padding: 60px 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  ">
+    <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+    <h3>جاري تحميل النتائج...</h3>
+    <p style="color: #666;">يرجى الانتظار</p>
+  </div>
+
+  <!-- Results Table -->
+  <div *ngIf="!loading && filteredResults.length > 0" style="
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  ">
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
+            <th style="padding: 16px; text-align: right; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              المسابقة
+            </th>
+            <th style="padding: 16px; text-align: right; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              الفئة
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              الفئة الفرعية
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              عدد المشاركين
+            </th>
+            <th style="padding: 16px; text-align: right; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              تم الإنشاء بواسطة
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              التاريخ
+            </th>
+            <th style="padding: 16px; text-align: center; font-weight: 600; color: #1b5e20; border-bottom: 2px solid #2d8c4a;">
+              إجراءات
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            #resultRow
+            *ngFor="let result of paginatedResults"
+            style="
+                cursor: pointer;
+                transition: background 0.3s ease;
+                border-bottom: 1px solid #f0f0f0;
+            "
+            (click)="viewResultDetails(result)"
+            (mouseenter)="resultRow.style.background='#f5f5f5'"
+            (mouseleave)="resultRow.style.background='#ffffff'"
+        >
+            <td style="padding: 16px; text-align: right;">
+              <div style="font-weight: 600; color: #333;">
+                {{ getCompetitionName(result) }}
+              </div>
+            </td>
+            <td style="padding: 16px; text-align: right;">
+              <div style="color: #666;">
+                {{ getCategoryName(result) }}
+              </div>
+            </td>
+            <td style="padding: 16px; text-align: center;">
+              <span style="
+                background: #e3f2fd;
+                color: #1976d2;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+              ">
+                {{ getSubCategoryDisplay(result) }}
+              </span>
+            </td>
+            <td style="padding: 16px; text-align: center;">
+              <div style="
+                display: inline-block;
+                background: #4caf50;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-weight: 600;
+              ">
+                {{ result.entriesCount || 0 }}
+              </div>
+            </td>
+            <td style="padding: 16px; text-align: right;">
+              <div style="color: #666; font-size: 13px;">
+                {{ getGeneratedByName(result) }}
+              </div>
+            </td>
+            <td style="padding: 16px; text-align: center;">
+              <div style="color: #666; font-size: 13px;">
+                {{ formatDate(result.createdAt) }}
+              </div>
+            </td>
+            <td style="padding: 16px; text-align: center;" (click)="$event.stopPropagation()">
+              <button
+                (click)="viewResultDetails(result)"
+                style="
+                  background: #1b5e20;
+                  color: white;
+                  border: none;
+                  padding: 6px 12px;
+                  border-radius: 4px;
+                  font-size: 12px;
+                  cursor: pointer;
+                  margin-left: 8px;
+                "
+              >
+                عرض
+              </button>
+              <button
+                (click)="deleteResult(result, $event)"
+                style="
+                  background: #d32f2f;
+                  color: white;
+                  border: none;
+                  padding: 6px 12px;
+                  border-radius: 4px;
+                  font-size: 12px;
+                  cursor: pointer;
+                "
+              >
+                حذف
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
+    ">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        style="
+          background: #e0e0e0;
+          color: #333;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          font-size: 14px;
+          cursor: pointer;
+        "
+        [style.opacity]="currentPage === 1 ? '0.5' : '1'"
+        [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'"
+      >
+        السابق
+      </button>
+
+      <span style="color: #666; font-size: 14px;">
+        صفحة {{ currentPage }} من {{ totalPages }}
+      </span>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        style="
+          background: #e0e0e0;
+          color: #333;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          font-size: 14px;
+          cursor: pointer;
+        "
+        [style.opacity]="currentPage === totalPages ? '0.5' : '1'"
+        [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'"
+      >
+        التالي
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredResults.length === 0" style="
+    text-align: center;
+    padding: 60px 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  ">
+    <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📊</div>
+    <h3>لا توجد نتائج</h3>
+    <p style="color: #666;">
+      لم يتم العثور على نتائج بناءً على التصفية المحددة
+    </p>
+  </div>
+</div>

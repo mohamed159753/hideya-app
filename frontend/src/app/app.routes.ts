@@ -37,6 +37,8 @@ export const routes: Routes = [
 
   { path:'branch-management', loadComponent: () => import('./components/branch-management/branch-management.component').then(m => m.BranchManagementComponent)},
   { path:'age-group-management',component:AgeGroupComponent},
+  { path:'admin/results/:id', loadComponent: () => import('./components/admin-result-detail/admin-result-detail.component').then(m => m.AdminResultDetailComponent)},
+  { path: 'admin/results-dashboard', loadComponent: () => import('./components/admin-results-dashboard/admin-results-dashboard.component').then(m => m.AdminResultsDashboardComponent)},
   { path: 'admin/competitions/:id/configure', component:CompetitionCategoryConfigComponent},
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },

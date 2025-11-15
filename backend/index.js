@@ -11,6 +11,7 @@ const participationRoutes = require('./routes/participations'); // your router f
 const branchRoutes = require("./routes/branchRoutes");
 const groupAgeRoutes = require("./routes/ageGroupRoutes");
 const competitionCategoryRoutes = require("./routes/competitionCategories");
+const adminResultRoutes = require('./routes/adminResultRoutes');
 
 const dashboardRoutes = require('./routes/dashboard');
 
@@ -39,6 +40,8 @@ app.use("/api/branches", branchRoutes);
 app.use("/api/age-groups", groupAgeRoutes);
 app.use("/api/competition-categories", competitionCategoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin/results', adminResultRoutes);
+
 
 
 
