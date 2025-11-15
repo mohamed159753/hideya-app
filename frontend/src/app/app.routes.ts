@@ -7,40 +7,69 @@ import { AdminParticipationComponent } from './components/admin-participation/ad
 import { JuryResultsComponent } from './components/jury-results/jury-results.component';
 import { AgeGroupComponent } from './age-group/age-group.component';
 import { CompetitionCategoryConfigComponent } from './components/competition-category-config/competition-category-config.component';
+import { ResultsComponent } from './components/results/results.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+import { JuryDashboardComponent } from './components/jury-dashboard/jury-dashboard.component';
+import { BranchManagementComponent } from './components/branch-management/branch-management.component';
+import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, },
   {
     path: 'admin-dashboard',
-    loadComponent: () =>
-      import('./components/admin-dashboard/admin-dashboard.component').then(
-        (m) => m.AdminDashboardComponent
-      ),
+    component: AdminDashboardComponent,canActivate: [AuthGuard],
+    data: { role: 'admin' },
   },
   {
     path: 'jury-dashboard',
-    loadComponent: () =>
-      import('./components/jury-dashboard/jury-dashboard.component').then(
-        (m) => m.JuryDashboardComponent
-      ),
+    component: JuryDashboardComponent,canActivate: [AuthGuard],
+    data: { role: 'jury' },
   },
   {
     path: 'results/:id',
-    loadComponent: () =>
-      import('./components/results/results.component').then((m) => m.ResultsComponent),
+    component: ResultsComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'jury' },
   },
-  { path:'competitor',component:AdminAddComponent},
-  { path:'competition',component:AdminCompetitionComponent},
-  { path:'category',component:AdminCategoryComponent},
-  { path:'participation',component:AdminParticipationComponent},
-  { path: 'jury-results', component:JuryResultsComponent },
+  { path: 'competitor', component: AdminAddComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+   },
+  { path: 'competition', component: AdminCompetitionComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+   },
+  { path: 'category', component: AdminCategoryComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+   },
+  { path: 'participation', component: AdminParticipationComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+   },
+  { path: 'jury-results', component: JuryResultsComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'jury' }
+   },
 
-  { path:'branch-management', loadComponent: () => import('./components/branch-management/branch-management.component').then(m => m.BranchManagementComponent)},
-  { path:'age-group-management',component:AgeGroupComponent},
   { path:'admin/results/:id', loadComponent: () => import('./components/admin-result-detail/admin-result-detail.component').then(m => m.AdminResultDetailComponent)},
   { path: 'admin/results-dashboard', loadComponent: () => import('./components/admin-results-dashboard/admin-results-dashboard.component').then(m => m.AdminResultsDashboardComponent)},
-  { path: 'admin/competitions/:id/configure', component:CompetitionCategoryConfigComponent},
+  {
+    path: 'branch-management',
+    component: BranchManagementComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' },
+  },
+  { path: 'age-group-management', component: AgeGroupComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+   },
+  {
+    path: 'admin/competitions/:id/configure',
+    component: CompetitionCategoryConfigComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' },
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
-  
 ];

@@ -54,7 +54,18 @@ export class AuthService {
   }
 
   getCurrentUser(): User | null {
+    if (!this.currentUserSubject.value) {
+      const stored = localStorage.getItem('userData');
+      if (stored) {
+        this.currentUserSubject.next(JSON.parse(stored));
+      }
+    }
     return this.currentUserSubject.value;
+  }
+
+  getUserRole(): string | null {
+    const user = this.getCurrentUser();
+    return user ? user.role : null;
   }
 
   private setSession(authResult: LoginResponse): void {
