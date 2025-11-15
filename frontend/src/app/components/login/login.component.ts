@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -18,8 +18,8 @@ export class LoginComponent {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -28,40 +28,33 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      const loginData = {
-        email: this.loginForm.get('email')?.value,
-        password: this.loginForm.get('password')?.value
-      };
-
-      console.log(loginData);
-
-      this.http.post('http://localhost:5000/api/auth/login', loginData)
-        .subscribe({
-          next: (response: any) => {
-            
-            this.isLoading = false;
-            localStorage.setItem('authToken', response.token);
-            localStorage.setItem('userData', JSON.stringify(response.user));
-            
-            if (response.user.role === 'admin') {
-              this.router.navigate(['/admin-dashboard']);
-            } else {
-              this.router.navigate(['/jury-dashboard']);
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.errorMessage = error.error?.message || 'حدث خطأ أثناء تسجيل الدخول';
-            console.error('Login error:', error);
-          }
-        });
-    } else {
+    if (this.loginForm.invalid) {
       this.markFormGroupTouched();
+      return;
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const { email, password } = this.loginForm.value;
+
+    this.authService.login(email, password).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+
+        // Redirect based on role
+        if (response.user.role === 'admin') {
+          this.router.navigate(['/admin-dashboard']);
+        } else {
+          this.router.navigate(['/jury-dashboard']);
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'حدث خطأ أثناء تسجيل الدخول';
+        console.error('Login error:', error);
+      }
+    });
   }
 
   private markFormGroupTouched() {
