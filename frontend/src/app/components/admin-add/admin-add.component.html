@@ -31,9 +31,8 @@
             العمر مطلوب (5 سنوات على الأقل)
           </span>
         </div>
-        
-        <!-- ✅ NEW: Gender field -->
-        <div class="form-group">
+
+        <div class="form-group select-wrapper">
           <label>الجنس *</label>
           <select formControlName="gender" required>
             <option value="" disabled selected>اختر الجنس</option>
@@ -46,8 +45,7 @@
         </div>
       </div>
 
-      <div class="form-row">
-
+      <div class="form-row select-wrapper">
         <div class="form-group">
           <label>الفرع (المدرسة) *</label>
           <select formControlName="branch" required>
@@ -60,7 +58,7 @@
         </div>
       </div>
 
-      <div class="form-row">
+      <div class="form-row select-wrapper">
         <div class="form-group">
           <label>من سورة *</label>
           <select formControlName="surahFrom" required>
@@ -93,6 +91,30 @@
     </form>
   </div>
 
+  <!-- Filters -->
+  <div class="filters">
+    <input type="text" placeholder="بحث بالاسم..." [(ngModel)]="filters.query" (ngModelChange)="applyFilters()" />
+    <input type="number" placeholder="العمر" [(ngModel)]="filters.age" (ngModelChange)="applyFilters()" min="5" />
+    
+    <div class="select-wrapper">
+      <select [(ngModel)]="filters.gender" (ngModelChange)="applyFilters()">
+        <option value="">كل الجنسين</option>
+        <option value="ذكر">ذكر</option>
+        <option value="أنثى">أنثى</option>
+      </select>
+    </div>
+
+    <div class="select-wrapper">
+      <select [(ngModel)]="filters.branch" (ngModelChange)="applyFilters()">
+        <option value="">كل الفروع</option>
+        <option *ngFor="let b of branches" [value]="b._id">{{ b.name }}</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn secondary" (click)="resetFilters()">إعادة تعيين</button>
+    <button class="btn small primary" (click)="printTable()">🖨️ طباعة</button>
+  </div>
+
   <!-- Competitors Table -->
   <div class="card table-card">
     <h2>قائمة المتسابقين</h2>
@@ -109,7 +131,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of competitors">
+          <tr *ngFor="let c of filteredCompetitors">
             <td>{{ c.firstName }} {{ c.lastName }}</td>
             <td>{{ c.age }}</td>
             <td>{{ c.gender }}</td>
@@ -127,5 +149,4 @@
       </table>
     </div>
   </div>
-
 </div>

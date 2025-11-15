@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminAddService } from '../../services/admin-add.service';
 import { CommonModule } from '@angular/common';
 import { CompetitionService } from '../../services/competition.service';
@@ -9,7 +9,7 @@ import { BranchService } from '../../services/branch.service';
 @Component({
   selector: 'app-admin-add',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,FormsModule],
   templateUrl: './admin-add.component.html',
   styleUrl: './admin-add.component.css'
 })
@@ -19,6 +19,15 @@ export class AdminAddComponent {
   competitorForm: FormGroup;
   editMode = false;
   currentCompetitorId: string | null = null;
+
+  filters = {
+  query: '',       // matches firstName, lastName
+  age: '',         // exact age or min/max later
+  gender: '',      // "ذكر" or "أنثى"
+  branch: ''       // branch _id
+};
+
+  filteredCompetitors: any[] = []; // display only filtered items
 
   // For dropdowns
   categories: any[] = [];
@@ -167,6 +176,7 @@ export class AdminAddComponent {
   loadCompetitors() {
     this.competitorService.getAll().subscribe(data => {
       this.competitors = data;
+      this.applyFilters();
     });
   }
 
@@ -256,4 +266,88 @@ export class AdminAddComponent {
     }
     return '-';
   }
+
+
+  applyFilters() {
+  const { query, age, gender, branch } = this.filters;
+  const lowerQuery = (query || '').toLowerCase().trim();
+
+  this.filteredCompetitors = this.competitors.filter(c => {
+    const fullName = `${c.firstName} ${c.lastName}`.toLowerCase();
+
+    const matchesQuery = !lowerQuery || fullName.includes(lowerQuery);
+    const matchesAge = !age || c.age === Number(age);
+    const matchesGender = !gender || c.gender === gender;
+
+    // ✅ handle branch as string or object
+    let competitorBranchId = '';
+    if (c.branch) {
+      competitorBranchId = typeof c.branch === 'string' ? c.branch : c.branch._id;
+    }
+    const matchesBranch = !branch || competitorBranchId === branch;
+
+    return matchesQuery && matchesAge && matchesGender && matchesBranch;
+  });
+}
+
+resetFilters() {
+  this.filters = { query: '', age: '', gender: '', branch: '' };
+  this.applyFilters();
+  }
+
+
+  printTable() {
+  // Clone only the table card to avoid printing filters or form
+  const tableCard = document.querySelector('.card.table-card')?.cloneNode(true) as HTMLElement;
+  if (!tableCard) return;
+
+  // Remove the "الإجراءات" column (last column)
+  tableCard.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+
+  // Extract cleaned HTML
+  const printContent = tableCard.innerHTML;
+
+  const printWindow = window.open('', '', 'width=900,height=650');
+  printWindow?.document.write(`
+    <html dir="rtl" lang="ar">
+      <head>
+        <title>طباعة - المتسابقين</title>
+        <style>
+          body {
+            font-family: 'Tahoma', sans-serif;
+            direction: rtl;
+            margin: 20px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+          }
+          th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: center;
+          }
+          th {
+            background-color: #f3f3f3;
+          }
+          h2 {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          @media print {
+            button { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h2>قائمة المتسابقين</h2>
+        ${printContent}
+      </body>
+    </html>
+  `);
+  printWindow?.document.close();
+  printWindow?.print();
+}
+
 }

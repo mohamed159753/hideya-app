@@ -44,6 +44,12 @@ export class AdminDashboardComponent implements OnInit {
 
   currentTab = 'overview';
 
+  genderDistributionChart: any;
+  ageGroupChart: any;
+  categoryDistributionChart: any;
+  branchPerformanceChart: any;
+  scoreDistributionChart: any;
+
   // Dashboard properties
   stats: DashboardStats | null = null;
   loading = true;
@@ -97,4 +103,6 @@ export class AdminDashboardComponent implements OnInit {
     const total = this.stats.completedEvaluations + this.stats.pendingEvaluations;
     return total > 0 ? (this.stats.pendingEvaluations / total) * 100 : 0;
   }
+
+  
 }

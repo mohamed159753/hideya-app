@@ -1,203 +1,461 @@
-<div class="container card">
-  <h1>إضافة مسابقة جديدة</h1>
+<!-- Add Bootstrap CSS in your index.html or main component -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"> -->
 
-  <!-- Wizard Step Indicators -->
-  <div class="steps">
-    <div [class.active]="currentStep === 1">1. المعلومات الأساسية</div>
-    <div [class.active]="currentStep === 2">2. الفئات والجنس</div>
-    <div [class.active]="currentStep === 3">3. المراجعة</div>
-  </div>
+<!-- Add d-print-none to hide form when printing -->
+<div class="container my-4 d-print-none">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title mb-3">إضافة مسابقة جديدة</h2>
 
-  <!-- Step 1 -->
-  <div *ngIf="currentStep === 1">
-    <form [formGroup]="competitionForm">
-      <label>اسم المسابقة</label>
-      <input formControlName="title" type="text" />
+      <!-- Wizard Step Indicators -->
+      <ul class="nav nav-pills nav-justified mb-4">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="currentStep === 1" [class.disabled]="currentStep !== 1">
+            <i class="bi bi-info-circle me-2"></i>
+            المعلومات الأساسية
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="currentStep === 2" [class.disabled]="currentStep !== 2">
+            <i class="bi bi-grid-3x3 me-2"></i>
+            الفئات والجنس
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="currentStep === 3" [class.disabled]="currentStep !== 3">
+            <i class="bi bi-check-circle me-2"></i>
+            المراجعة
+          </a>
+        </li>
+      </ul>
 
-      <label>نوع المسابقة</label>
-      <select formControlName="type">
-        <option value="local">محلية</option>
-        <option value="regional">إقليمية</option>
-        <option value="national">وطنية</option>
-        <option value="international">دولية</option>
-      </select>
+      <!-- Step 1 -->
+      <div *ngIf="currentStep === 1">
+        <form [formGroup]="competitionForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold">اسم المسابقة <span class="text-danger">*</span></label>
+            <input formControlName="title" type="text" class="form-control" placeholder="أدخل اسم المسابقة" />
+          </div>
 
-      <label>تاريخ البداية</label>
-      <input type="datetime-local" formControlName="startDate" />
+          <div class="mb-3">
+            <label class="form-label fw-bold">نوع المسابقة <span class="text-danger">*</span></label>
+            <select formControlName="type" class="form-select">
+              <option value="local">محلية</option>
+              <option value="regional">إقليمية</option>
+              <option value="national">وطنية</option>
+              <option value="international">دولية</option>
+            </select>
+          </div>
 
-      <label>تاريخ النهاية</label>
-      <input type="datetime-local" formControlName="endDate" />
-    </form>
-  </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">تاريخ البداية <span class="text-danger">*</span></label>
+              <input type="datetime-local" formControlName="startDate" class="form-control" />
+            </div>
 
-  <!-- Step 2 -->
-  <div *ngIf="currentStep === 2">
-    <h3>اختيار الفئات والجنس</h3>
-    <div *ngFor="let cat of categories">
-      <label>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">تاريخ النهاية <span class="text-danger">*</span></label>
+              <input type="datetime-local" formControlName="endDate" class="form-control" />
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 2 -->
+<div *ngIf="currentStep === 2">
+  <h5 class="mb-4">اختيار الفئات والجنس</h5>
+  
+  <div class="card mb-3" *ngFor="let cat of categories; let i = index">
+    <div class="card-header bg-light">
+      <div class="form-check">
         <input
+          class="form-check-input"
           type="checkbox"
           [value]="cat._id"
+          [id]="'cat' + i"
           (change)="onCategoryChange($event)"
-          [checked]="competitionForm.value.categoryIds.includes(cat._id)"
+          [checked]="competitionForm.value.categoryIds?.includes(cat._id)"
         />
-        {{ cat.name }}
-      </label>
+        <label class="form-check-label fw-bold" [attr.for]="'cat' + i">
+          {{ cat.name }}
+        </label>
+      </div>
+    </div>
 
-      <div *ngIf="competitionForm.value.categoryIds.includes(cat._id)" class="config-box">
-        <label><input type="checkbox" (change)="toggleGender(cat._id, 'male', $event)" /> ذكور</label>
-        <label><input type="checkbox" (change)="toggleGender(cat._id, 'female', $event)" /> إناث</label>
-        <label><input type="checkbox" (change)="toggleGender(cat._id, 'children', $event)" /> أطفال</label>
+    <div class="card-body" *ngIf="competitionForm.value.categoryIds?.includes(cat._id)">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              [id]="'male' + i" 
+              [checked]="genderConfig[cat._id]?.male"
+              (change)="toggleGender(cat._id, 'male', $event)" 
+            />
+            <label class="form-check-label" [attr.for]="'male' + i">
+              <i class="bi bi-gender-male text-primary"></i> ذكور
+            </label>
+          </div>
+        </div>
 
-        <div *ngIf="genderConfig[cat._id]?.children?.active">
-          <label>مجموعات الأعمار:</label>
-          <select multiple (change)="updateChildrenAgeGroups(cat._id, $event)">
-            <option *ngFor="let g of allAgeGroups" [value]="g._id">{{ g.name }}</option>
-          </select>
+        <div class="col-md-4">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              [id]="'female' + i" 
+              [checked]="genderConfig[cat._id]?.female"
+              (change)="toggleGender(cat._id, 'female', $event)" 
+            />
+            <label class="form-check-label" [attr.for]="'female' + i">
+              <i class="bi bi-gender-female text-danger"></i> إناث
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              [id]="'children' + i" 
+              [checked]="genderConfig[cat._id]?.children?.active"
+              (change)="toggleGender(cat._id, 'children', $event)" 
+            />
+            <label class="form-check-label" [attr.for]="'children' + i">
+              <i class="bi bi-people text-warning"></i> أطفال
+            </label>
+          </div>
         </div>
       </div>
-      <hr />
+
+      <div *ngIf="genderConfig[cat._id]?.children?.active" class="mt-3">
+        <label class="form-label fw-bold">مجموعات الأعمار:</label>
+        <select 
+          multiple 
+          (change)="updateChildrenAgeGroups(cat._id, $event)" 
+          class="form-select" 
+          size="4"
+        >
+          <option 
+            *ngFor="let g of allAgeGroups" 
+            [value]="g._id"
+            [selected]="genderConfig[cat._id]?.children?.ageGroups?.includes(g._id)"
+          >
+            {{ g.name }}
+          </option>
+        </select>
+        <small class="form-text text-muted">اضغط Ctrl/Cmd لاختيار متعدد</small>
+      </div>
     </div>
   </div>
+</div>
+      <!-- Step 3 -->
+      <div *ngIf="currentStep === 3">
+        <h5 class="mb-4">مراجعة البيانات قبل الحفظ</h5>
+        
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <th class="bg-light" style="width: 200px;">اسم المسابقة</th>
+                <td>{{ competitionForm.value.title }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">النوع</th>
+                <td>
+                  <span class="badge bg-primary">{{ competitionForm.value.type }}</span>
+                </td>
+              </tr>
+              <tr>
+                <th class="bg-light">تاريخ البداية</th>
+                <td>{{ competitionForm.value.startDate }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">تاريخ النهاية</th>
+                <td>{{ competitionForm.value.endDate }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">الفئات المختارة</th>
+                <td>
+                  <ul class="list-unstyled mb-0">
+                    <li *ngFor="let catId of competitionForm.value.categoryIds" class="mb-2">
+                      <strong>{{ getCategoryNameById(catId) }}:</strong>
+                      <span *ngIf="genderConfig[catId]?.male" class="badge bg-primary ms-2">ذكور</span>
+                      <span *ngIf="genderConfig[catId]?.female" class="badge bg-danger ms-2">إناث</span>
+                      <span *ngIf="genderConfig[catId]?.children?.active" class="badge bg-warning text-dark ms-2">
+                        أطفال ({{ genderConfig[catId].children.ageGroups.length }} فئات)
+                      </span>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-  <!-- Step 3 -->
-  <div *ngIf="currentStep === 3">
-    <h3>مراجعة البيانات قبل الحفظ</h3>
-    <p><strong>اسم المسابقة:</strong> {{ competitionForm.value.title }}</p>
-    <p><strong>النوع:</strong> {{ competitionForm.value.type }}</p>
-    <p><strong>الفترة:</strong> {{ competitionForm.value.startDate }} → {{ competitionForm.value.endDate }}</p>
-
-    <p><strong>الفئات:</strong></p>
-    <ul>
-      <li *ngFor="let catId of competitionForm.value.categoryIds">
-        {{ getCategoryNameById(catId) }}:
-        <span *ngIf="genderConfig[catId]?.male">ذكور </span>
-        <span *ngIf="genderConfig[catId]?.female">إناث </span>
-        <span *ngIf="genderConfig[catId]?.children?.active">
-          أطفال ({{ genderConfig[catId].children.ageGroups.length }} فئات عمرية)
-        </span>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Wizard Buttons -->
-  <div class="wizard-buttons">
-    <button class="btn secondary" (click)="goBack()" [disabled]="currentStep === 1">السابق</button>
-    <button class="btn primary" *ngIf="currentStep < 3" (click)="goNext()">التالي</button>
-    <button class="btn success" *ngIf="currentStep === 3" (click)="onSubmit()">حفظ المسابقة</button>
+      <!-- Wizard Buttons -->
+      <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+        <button class="btn btn-secondary" (click)="goBack()" [disabled]="currentStep === 1">
+          <i class="bi bi-arrow-right me-2"></i>السابق
+        </button>
+        <button class="btn btn-primary" *ngIf="currentStep < 3" (click)="goNext()">
+          التالي<i class="bi bi-arrow-left ms-2"></i>
+        </button>
+        <button class="btn btn-success" *ngIf="currentStep === 3" (click)="onSubmit()">
+          <i class="bi bi-check-lg me-2"></i>حفظ المسابقة
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Existing Competitions List -->
-<div class="container card">
-  <h2>قائمة المسابقات</h2>
-  <table class="competition-table">
-    <thead>
-      <tr>
-        <th>الاسم</th>
-        <th>النوع</th>
-        <th>الفئات</th>
-        <th>تاريخ البداية</th>
-        <th>تاريخ النهاية</th>
-        <th>الإجراءات</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let comp of competitions">
-        <td>{{ comp.title }}</td>
-        <td>{{ comp.type }}</td>
-        <td>{{ getCategoryNames(comp) }}</td>
-        <td>{{ formatDate(comp.startDate) }}</td>
-        <td>{{ formatDate(comp.endDate) }}</td>
-        <td>
-          <button class="btn small secondary" (click)="openAssignments(comp)">تعيين اللجان</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Jury Assignment Modal -->
-<div class="modal" *ngIf="showAssignmentsModal">
-  <div class="modal-backdrop" (click)="closeAssignments()"></div>
-  <div class="modal-panel card">
-    <h3>تعيين اللجان للمسابقة: {{ selectedCompetition?.title }}</h3>
-
-    <p *ngIf="loadingAssignments">جاري التحميل...</p>
-
-    <div *ngIf="!loadingAssignments">
-      <!-- Existing Assignments -->
-      <div *ngIf="assignments.length === 0" class="empty">لا توجد تعيينات حالياً</div>
-
-      <div *ngFor="let a of assignments" class="assignment">
-        <strong>
-          {{ getCategoryNameById(a.categoryId) }} - {{ formatSubCategory(a.subCategory!) }}
-        </strong>
-        <span>القاعـة: {{ a.classRoom || '-' }}</span>
-        <br />
-        <small>
-          الأعضاء:
-          <span *ngFor="let m of a.juryMembers; let last = last">
-            {{ getUserNameById(m.userId) }} ({{ m.role === 'president' ? 'رئيس' : 'عضو' }})<span *ngIf="!last">, </span>
-          </span>
-        </small>
-        <button class="btn small danger" (click)="deleteAssignment(a._id!)">حذف</button>
-        <hr />
+<div class="container my-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">قائمة المسابقات</h4>
+        <button class="btn btn-outline-primary d-print-none" (click)="printTable()">
+          <i class="bi bi-printer me-2"></i>طباعة
+        </button>
       </div>
-
-      <!-- Add New Assignments for all Subcategories -->
-      <div class="new-assignment">
-        <h4>إضافة تعيين جديد لكل فئة فرعية</h4>
-        
-        <div *ngIf="availableSubCategories.length === 0" class="success-message">
-          ✅ تم تعيين اللجان لجميع الفئات الفرعية
+      
+      <!-- Filters -->
+      <div class="row g-2 mt-2 d-print-none">
+        <div class="col-md-5">
+          <input 
+            type="text" 
+            [(ngModel)]="filterTitle" 
+            (input)="applyFilters()"
+            placeholder="بحث بالاسم..."
+            class="form-control"
+          />
         </div>
-
-        <div *ngFor="let sc of availableSubCategories" class="sub-category-card">
-          <h4>{{ sc.label }}</h4>
-
-          <label>القاعـة</label>
-          <input type="text" [(ngModel)]="sc.classRoom" placeholder="مثال: A101" />
-
-          <label>رئيس اللجنة (فقط من يمكنهم الترؤس)</label>
-          <select [(ngModel)]="sc.presidentId">
-            <option value="">اختر الرئيس</option>
-            <option *ngFor="let u of getPresidentCandidates()" [value]="u._id">
-              {{ u.firstName }} {{ u.lastName }} 
-              <span *ngIf="u.expertiseLevel">(خبرة: {{ u.expertiseLevel }}/10)</span>
-            </option>
+        <div class="col-md-4">
+          <select [(ngModel)]="filterType" (change)="applyFilters()" class="form-select">
+            <option value="">كل الأنواع</option>
+            <option value="local">محلية</option>
+            <option value="regional">إقليمية</option>
+            <option value="national">وطنية</option>
+            <option value="international">دولية</option>
           </select>
-
-          <div class="jury-filters">
-            <label>
-              <strong>فلترة الأعضاء:</strong>
-            </label>
-            <label>
-              الحد الأدنى للخبرة:
-              <input type="number" [(ngModel)]="sc.minExpertise" min="1" max="10" placeholder="1-10" />
-            </label>
-          </div>
-
-          <label>الأعضاء</label>
-          <select multiple [(ngModel)]="sc.juryMembers" size="8">
-            <option 
-              *ngFor="let u of getFilteredJuryMembers(sc)" 
-              [value]="u._id"
-              [disabled]="u._id === sc.presidentId"
-            >
-              {{ u.firstName }} {{ u.lastName }}
-              <span *ngIf="u.expertiseLevel"> - خبرة: {{ u.expertiseLevel }}/10</span>
-              <span *ngIf="u.canBePresident"> ⭐</span>
-            </option>
-          </select>
-          <small class="hint">⭐ = يمكنه الترؤس | الرئيس غير قابل للاختيار كعضو | اضغط Ctrl/Cmd لاختيار متعدد</small>
-
-          <button class="btn success" (click)="addAssignmentForSubCategory(sc)">إضافة التعيين</button>
-          <hr />
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-danger w-100" (click)="clearFilters()" *ngIf="filterTitle || filterType">
+            <i class="bi bi-x-circle me-2"></i>مسح الفلاتر
+          </button>
         </div>
       </div>
     </div>
 
-    <button class="btn secondary" (click)="closeAssignments()">إغلاق</button>
+    <div class="card-body">
+      <div *ngIf="filteredCompetitions.length === 0" class="text-center py-5 text-muted">
+        <i class="bi bi-inbox display-1"></i>
+        <p class="mt-3">لا توجد مسابقات متاحة</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="filteredCompetitions.length > 0">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>الاسم</th>
+              <th>النوع</th>
+              <th>الفئات</th>
+              <th>تاريخ البداية</th>
+              <th>تاريخ النهاية</th>
+              <th class="text-center d-print-none">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let comp of filteredCompetitions">
+              <td class="fw-bold">{{ comp.title }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-success': comp.type === 'local',
+                  'bg-info': comp.type === 'regional',
+                  'bg-warning': comp.type === 'national',
+                  'bg-primary': comp.type === 'international'
+                }">{{ comp.type }}</span>
+              </td>
+              <td>{{ getCategoryNames(comp) }}</td>
+              <td>{{ formatDate(comp.startDate) }}</td>
+              <td>{{ formatDate(comp.endDate) }}</td>
+              <td class="text-center d-print-none">
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-outline-primary" (click)="openAssignments(comp)" title="تعيين اللجان">
+                    <i class="bi bi-people"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="editCompetition(comp)" title="تعديل">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteCompetition(comp._id!)" title="حذف">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Jury Assignment Modal -->
+<div class="modal fade show d-block" *ngIf="showAssignmentsModal" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-people me-2"></i>
+          تعيين اللجان للمسابقة: {{ selectedCompetition?.title }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeAssignments()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="loadingAssignments" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">جاري التحميل...</span>
+          </div>
+          <p class="mt-3">جاري التحميل...</p>
+        </div>
+
+        <div *ngIf="!loadingAssignments">
+          <!-- Existing Assignments -->
+          <div *ngIf="assignments.length > 0" class="mb-4">
+            <h6 class="border-bottom pb-2 mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              التعيينات الحالية
+            </h6>
+            
+            <div class="row g-3">
+              <div class="col-md-6" *ngFor="let a of assignments">
+                <div class="card border-start border-4 border-primary">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <h6 class="card-title mb-1">{{ getCategoryNameById(a.categoryId) }}</h6>
+                        <span class="badge bg-secondary">{{ formatSubCategory(a.subCategory!) }}</span>
+                      </div>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteAssignment(a._id!)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="small mb-2">
+                      <i class="bi bi-building me-1"></i>
+                      <strong>القاعة:</strong> {{ a.classRoom || '-' }}
+                    </div>
+                    
+                    <div class="small">
+                      <i class="bi bi-people me-1"></i>
+                      <strong>الأعضاء:</strong>
+                      <div class="mt-1">
+                        <span *ngFor="let m of a.juryMembers; let last = last">
+                          <span [ngClass]="m.role === 'president' ? 'badge bg-warning text-dark' : 'badge bg-light text-dark'">
+                            {{ getUserNameById(m.userId) }}
+                            <small>({{ m.role === 'president' ? 'رئيس' : 'عضو' }})</small>
+                          </span>
+                          <span *ngIf="!last"> </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="assignments.length === 0" class="alert alert-info text-center">
+            <i class="bi bi-info-circle me-2"></i>
+            لا توجد تعيينات حالياً
+          </div>
+
+          <!-- New Assignments -->
+          <div>
+            <h6 class="border-bottom pb-2 mb-3">
+              <i class="bi bi-plus-circle text-primary me-2"></i>
+              إضافة تعيينات جديدة
+            </h6>
+            
+            <div *ngIf="availableSubCategories.length === 0" class="alert alert-success text-center">
+              <i class="bi bi-check-circle me-2"></i>
+              تم تعيين اللجان لجميع الفئات الفرعية
+            </div>
+
+            <div class="accordion" id="newAssignmentsAccordion">
+              <div class="accordion-item mb-3" *ngFor="let sc of availableSubCategories; let idx = index">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#new' + idx">
+                    {{ sc.label }}
+                  </button>
+                </h2>
+                <div [id]="'new' + idx" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label fw-bold">القاعة</label>
+                        <input type="text" [(ngModel)]="sc.classRoom" placeholder="مثال: A101" class="form-control" />
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label fw-bold">رئيس اللجنة</label>
+                        <select [(ngModel)]="sc.presidentId" class="form-select">
+                          <option value="">اختر الرئيس</option>
+                          <option *ngFor="let u of getPresidentCandidates()" [value]="u._id">
+                            {{ u.firstName }} {{ u.lastName }} 
+                            <span *ngIf="u.expertiseLevel">(خبرة: {{ u.expertiseLevel }}/10)</span>
+                          </option>
+                        </select>
+                      </div>
+
+                      <div class="col-12">
+                        <label class="form-label fw-bold">فلترة الأعضاء</label>
+                        <div class="input-group">
+                          <span class="input-group-text">الحد الأدنى للخبرة</span>
+                          <input type="number" [(ngModel)]="sc.minExpertise" min="1" max="10" placeholder="1-10" class="form-control" style="max-width: 100px;" />
+                        </div>
+                      </div>
+
+                      <div class="col-12">
+                        <label class="form-label fw-bold">أعضاء اللجنة</label>
+                        <select multiple [(ngModel)]="sc.juryMembers" size="6" class="form-select">
+                          <option 
+                            *ngFor="let u of getFilteredJuryMembers(sc)" 
+                            [value]="u._id"
+                            [disabled]="u._id === sc.presidentId"
+                          >
+                            {{ u.firstName }} {{ u.lastName }}
+                            <span *ngIf="u.expertiseLevel"> - خبرة: {{ u.expertiseLevel }}/10</span>
+                            <span *ngIf="u.canBePresident"> (يمكنه الترؤس)</span>
+                          </option>
+                        </select>
+                        <small class="form-text text-muted">اضغط Ctrl/Cmd لاختيار متعدد. الرئيس غير قابل للاختيار كعضو</small>
+                      </div>
+
+                      <div class="col-12">
+                        <button class="btn btn-success w-100" (click)="addAssignmentForSubCategory(sc)">
+                          <i class="bi bi-check-lg me-2"></i>
+                          إضافة التعيين
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAssignments()">إغلاق</button>
+      </div>
+    </div>
   </div>
 </div>

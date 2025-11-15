@@ -1,240 +1,130 @@
-/* === Base Container === */
-.container.card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+/* Minimal custom CSS - Bootstrap handles most styling */
+
+/* RTL Support */
+body {
   direction: rtl;
-  max-width: 900px;
-  margin: 2rem auto;
+  text-align: right;
 }
 
-/* === Step Indicator === */
-.steps {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  font-weight: 600;
-  text-align: center;
-  position: relative;
+/* Fix Bootstrap RTL issues */
+.btn-group .btn {
+  margin-left: 0;
 }
 
-.steps div {
-  flex: 1;
-  padding: 10px 12px;
-  border-bottom: 3px solid #ccc;
-  color: #999;
-  transition: all 0.3s ease;
+.me-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
-.steps div.active {
-  border-color: #4CAF50;
-  color: #333;
+.me-3 {
+  margin-left: 1rem !important;
+  margin-right: 0 !important;
 }
 
-/* optional connecting line */
-.steps::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(to left, #4caf50 33%, #ccc 33%);
-  opacity: 0.15;
+.ms-2 {
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
 }
 
-/* === Forms === */
-form label {
+/* Modal backdrop for when not using Bootstrap JS */
+.modal.show {
   display: block;
-  font-weight: 500;
-  margin-top: 1rem;
-  color: #333;
 }
 
-input[type="text"],
-input[type="datetime-local"],
-select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  margin-top: 4px;
+/* Make nav pills look better in RTL */
+.nav-pills .nav-link {
+  border-radius: 0.375rem;
 }
 
-input:focus,
-select:focus {
-  outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.15);
+.nav-pills .nav-link.disabled {
+  pointer-events: none;
+  opacity: 0.6;
 }
 
-/* === Category Section === */
-.config-box {
-  background: #f9f9f9;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 0.5rem;
-  border: 1px solid #eee;
+/* Accordion improvements */
+.accordion-button:not(.collapsed) {
+  background-color: #e7f1ff;
+  color: #0d6efd;
 }
 
-.config-box label {
-  margin-right: 1rem;
+.accordion-button::after {
+  margin-right: auto;
+  margin-left: 0;
 }
 
-/* === Wizard Buttons === */
-.wizard-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
-  gap: 10px;
-}
-
-button.btn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+/* Table hover effect enhancement */
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
   cursor: pointer;
-  transition: background 0.2s ease;
 }
 
-button.btn.primary {
-  background: #2196F3;
-  color: white;
+/* Card border accent for assignments */
+.border-start.border-4 {
+  border-left-width: 4px !important;
 }
 
-button.btn.primary:hover {
-  background: #1976D2;
+/* Better spacing for badge groups */
+.badge + .badge {
+  margin-right: 0.25rem;
 }
 
-button.btn.secondary {
-  background: #e0e0e0;
-  color: #333;
-}
-
-button.btn.secondary:hover {
-  background: #bdbdbd;
-}
-
-button.btn.success {
-  background: #4CAF50;
-  color: white;
-}
-
-button.btn.success:hover {
-  background: #388E3C;
-}
-
-/* === Review List === */
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-ul li {
+/* Form improvements */
+.form-label.fw-bold {
   margin-bottom: 0.5rem;
-  background: #f4f4f4;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 14px;
 }
 
-/* === Responsive === */
-@media (max-width: 600px) {
-  .steps {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .wizard-buttons {
-    flex-direction: column;
-  }
+/* Improved select multiple styling */
+select[multiple] {
+  padding: 0.5rem;
 }
 
-/* === Competitions Table === */
-.competition-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-  font-size: 14px;
+select[multiple] option {
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 0.25rem;
 }
 
-.competition-table th,
-.competition-table td {
-  border: 1px solid #eee;
-  padding: 8px 10px;
-  text-align: center;
+select[multiple] option:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
 }
 
-.competition-table th {
-  background-color: #f4f4f4;
-  color: #333;
-}
-
-.competition-table tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-.modal-panel {
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  max-width: 600px;
-  width: 90%;
-  padding: 2rem;
-  z-index: 1001;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+/* Modal adjustments */
+.modal-dialog-scrollable .modal-body {
   overflow-y: auto;
-  max-height: 80vh;
 }
 
-.modal-panel h3 {
-  margin-top: 0;
-  text-align: center;
+/* Spinner center alignment */
+.spinner-border {
+  margin: 0 auto;
 }
 
-.modal .btn {
-  display: block;
-  margin: 1rem auto 0 auto;
+/* Responsive fixes */
+@media (max-width: 768px) {
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    border-radius: 0.375rem !important;
+    margin-bottom: 0.25rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .modal-xl {
+    max-width: 100%;
+    margin: 0;
+  }
 }
 
-/* === Assignments Section === */
-.assignment {
-  background: #f7f9fc;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-  border: 1px solid #e0e0e0;
-}
-
-.assignment strong {
-  color: #007bff;
-}
-
-.empty {
-  text-align: center;
-  color: #777;
-  margin-top: 10px;
+/* Print styles */
+@media print {
+  .btn, .btn-group, .modal {
+    display: none !important;
+  }
 }

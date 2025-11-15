@@ -23,8 +23,8 @@ export class ResultsService {
   }
 
   // Preview computed final results (read-only)
-  getFinalResults(competitionId: string, categoryId: string): Observable<any> {
-    const params = new HttpParams().set('competitionId', competitionId).set('categoryId', categoryId);
+  getFinalResults(competitionId: string, categoryId: string, subCategoryId:string): Observable<any> {
+    const params = new HttpParams().set('competitionId', competitionId).set('categoryId', categoryId).set('subCategory',subCategoryId);
     return this.http.get<any>(`${this.apiUrl}/final-results`, { params }).pipe(
       catchError((err) => {
         const msg = err?.error?.message || 'فشل جلب النتائج النهائية';
@@ -35,7 +35,7 @@ export class ResultsService {
   }
 
   // Save final results to DB for audit trail
-  saveFinalResults(payload: { competitionId: string; categoryId: string; requestedBy?: string; note?: string }): Observable<any> {
+  saveFinalResults(payload: { competitionId: string; categoryId: string; subCategory : string; requestedBy?: string; note?: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/save-final-results`, payload).pipe(
       catchError((err) => {
         const msg = err?.error?.message || 'فشل حفظ النتائج النهائية';

@@ -45,8 +45,9 @@ export class JuryResultsComponent implements OnInit {
     const compId =
       this.assignment.competitionId?._id || this.assignment.competitionId;
     const catId = this.assignment.categoryId?._id || this.assignment.categoryId;
+    const subCatId = this.assignment.subCategory || undefined;
 
-    this.resultsService.getFinalResults(compId, catId).subscribe({
+    this.resultsService.getFinalResults(compId, catId, subCatId).subscribe({
       next: (res: any) => {
         // res.entries contains the list of entries computed on server
         this.results = res?.entries || [];
@@ -68,6 +69,7 @@ export class JuryResultsComponent implements OnInit {
       competitionId:
         this.assignment.competitionId?._id || this.assignment.competitionId,
       categoryId: this.assignment.categoryId?._id || this.assignment.categoryId,
+      subCategory: this.assignment.subCategory || undefined,
       requestedBy: undefined,
       note: `Saved from UI by ${this.assignment._id}`,
     };

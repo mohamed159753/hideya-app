@@ -57,6 +57,11 @@ export class AdminCompetitionComponent implements OnInit {
   allAgeGroups: any[] = [];
   users: any[] = [];
 
+
+  filteredCompetitions: Competition[] = [];
+  filterTitle: string = '';
+  filterType: string = '';
+
   genderConfig: Record<string, {
     male: boolean;
     female: boolean;
@@ -115,10 +120,57 @@ export class AdminCompetitionComponent implements OnInit {
   // ===== Loaders =====
   loadCompetitions() {
     this.competitionService.getAll().subscribe({
-      next: (data) => (this.competitions = data),
+      next: (data) => {
+        this.competitions = data,
+        this.applyFilters();
+    },
       error: (err) => console.error('❌ Error loading competitions:', err)
     });
   }
+
+  applyFilters() {
+  this.filteredCompetitions = this.competitions.filter(c => {
+    const matchesTitle = c.title.toLowerCase().includes(this.filterTitle.toLowerCase());
+    const matchesType = !this.filterType || c.type === this.filterType;
+    return matchesTitle && matchesType;
+  });
+}
+
+clearFilters() {
+  this.filterTitle = '';
+  this.filterType = '';
+  this.applyFilters();
+}
+
+editCompetition(comp: Competition) {
+  // Fill the wizard form with competition data
+  this.competitionForm.patchValue({
+    title: comp.title,
+    type: comp.type,
+    startDate: comp.startDate,
+    endDate: comp.endDate,
+    categoryIds: comp.categoryIds
+  });
+  this.genderConfig = {}; 
+  if (comp.genderGroups) {
+    this.rebuildGenderConfig(comp);
+  }
+  this.currentStep = 1; // Go back to step 1
+}
+
+deleteCompetition(id: string) {
+  if (!confirm('هل أنت متأكد من حذف هذه المسابقة؟')) return;
+  this.competitionService.delete(id).subscribe({
+    next: () => {
+      this.competitions = this.competitions.filter(c => c._id !== id);
+      this.applyFilters();
+      alert('تم حذف المسابقة بنجاح');
+    },
+    error: (err) => alert('حدث خطأ أثناء حذف المسابقة')
+  });
+}
+
+
 
   loadCategories() {
     this.categoryService.getAll().subscribe({
@@ -556,4 +608,45 @@ export class AdminCompetitionComponent implements OnInit {
     }
     return subCategory;
   }
+
+
+  printTable() {
+  window.print();
+}
+
+onCheckboxClick(event: Event, categoryId: string): void {
+  event.stopPropagation(); // Prevent accordion toggle
+  const checkbox = event.target as HTMLInputElement;
+  
+  const currentIds = this.competitionForm.value.categoryIds || [];
+  
+  if (checkbox.checked) {
+    // Add category
+    if (!currentIds.includes(categoryId)) {
+      this.competitionForm.patchValue({
+        categoryIds: [...currentIds, categoryId]
+      });
+      // Initialize genderConfig for this category
+      if (!this.genderConfig[categoryId]) {
+        this.genderConfig[categoryId] = {
+          male: false,
+          female: false,
+          children: { active: false, ageGroups: [] }
+        };
+      }
+    }
+  } else {
+    // Remove category
+    this.competitionForm.patchValue({
+      categoryIds: currentIds.filter((id: string) => id !== categoryId)
+    });
+    // Remove gender config for this category
+    delete this.genderConfig[categoryId];
+  }
+}
+
+isCategorySelected(categoryId: string): boolean {
+  const ids = this.competitionForm.value.categoryIds || [];
+  return ids.includes(categoryId);
+}
 }

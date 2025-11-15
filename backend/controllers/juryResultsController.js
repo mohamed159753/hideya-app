@@ -20,11 +20,11 @@ exports.canShowResults = async (req, res) => {
 // compute averages (but do not save)
 exports.finalResults = async (req, res) => {
   try {
-    const { competitionId, categoryId } = req.query;
+    const { competitionId, categoryId, subCategory } = req.query;
     if (!competitionId || !categoryId) return res.status(400).json({ message: 'competitionId and categoryId required' });
-    const participations = await gatherParticipations(competitionId, categoryId);
+    const participations = await gatherParticipations(competitionId, categoryId,subCategory);
     const entries = await computeEntries(participations);
-    return res.json({ competitionId, categoryId, entries });
+    return res.json({ competitionId, categoryId,subCategory, entries });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
@@ -35,18 +35,20 @@ exports.finalResults = async (req, res) => {
 // Save computed final results to DB for audit trail
 exports.saveFinalResults = async (req, res) => {
   try {
-    const { competitionId, categoryId, note } = req.body;
+    const { competitionId, categoryId,subCategory, note } = req.body;
+
+    console.log('Save final results called with:', { competitionId, categoryId,subCategory, note });
     const requestedBy = req.user?.id || req.body.requestedBy;
-    if (!competitionId || !categoryId) return res.status(400).json({ message: 'competitionId and categoryId required' });
+    if (!competitionId || !categoryId || !subCategory) return res.status(400).json({ message: 'competitionId and categoryId required' });
 
     // Check permission
     const canShow = await canShowResults(competitionId, categoryId, requestedBy);
     if (!canShow.allowed) return res.status(403).json({ message: canShow.reason || 'Not allowed to save results' });
 
-    const participations = await gatherParticipations(competitionId, categoryId);
+    const participations = await gatherParticipations(competitionId, categoryId,subCategory);
     const entries = await computeEntries(participations);
 
-    const fr = new FinalResult({ competitionId, categoryId, generatedBy: requestedBy, entries, note });
+    const fr = new FinalResult({ competitionId, categoryId,subCategory, generatedBy: requestedBy, entries, note });
     await fr.save();
     return res.json(fr);
   } catch (err) {

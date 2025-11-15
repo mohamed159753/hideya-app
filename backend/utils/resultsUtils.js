@@ -6,8 +6,8 @@ const mongoose = require('mongoose');
 /**
  * Gather participations for a competition + category with competitor snapshot
  */
-async function gatherParticipations(competitionId, categoryId) {
-  return Participation.find({ competitionId, categoryId }).populate('competitorId');
+async function gatherParticipations(competitionId, categoryId, subCategory) {
+  return Participation.find({ competitionId, categoryId, subCategory }).populate('competitorId');
 }
 
 /**

@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
+  NgModel,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -10,6 +12,7 @@ import { CompetitionService } from '../../services/competition.service';
 import { AdminAddService } from '../../services/admin-add.service';
 import { ParticipationService } from '../../services/participation.service';
 import { AgeGroupService } from '../../services/age-group.service';
+import { CategoryService } from '../../services/category.service';
 
 interface SubCategoryOption {
   value: string; // e.g., 'male', 'female', 'children_<ageGroupId>'
@@ -20,7 +23,7 @@ interface SubCategoryOption {
 @Component({
   selector: 'app-admin-participation',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule],
   templateUrl: './admin-participation.component.html',
   styleUrls: ['./admin-participation.component.css'],
 })
@@ -51,7 +54,8 @@ export class AdminParticipationComponent implements OnInit {
     private competitionService: CompetitionService,
     private competitorService: AdminAddService,
     private participationService: ParticipationService,
-    private ageGroupService: AgeGroupService
+    private ageGroupService: AgeGroupService,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit(): void {
@@ -66,6 +70,7 @@ export class AdminParticipationComponent implements OnInit {
     this.loadCompetitors();
     this.loadParticipations();
     this.loadAgeGroups();
+    this.loadCategories();
   }
 
   loadCompetitions() {
@@ -115,6 +120,19 @@ export class AdminParticipationComponent implements OnInit {
       },
     });
   }
+
+  loadCategories() {
+    this.categoryService.getAll().subscribe({
+      next: (data) => {
+        this.categories = data || [];
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.categories = [];
+      },
+    });
+  }
+
 
   onCompetitionChange() {
     const competitionId = this.participationForm.get('competitionId')?.value;
@@ -368,4 +386,69 @@ export class AdminParticipationComponent implements OnInit {
     }
     return subCategory;
   }
+
+
+  filters = {
+  name: '',
+  competition: '',
+  category: '',
+  subCategory: ''
+};
+
+getFilteredParticipations() {
+  return this.participations.filter(p => {
+    const name = `${p.competitorId?.firstName || ''} ${p.competitorId?.lastName || ''}`.trim();
+    const matchName = this.filters.name
+      ? name.includes(this.filters.name)
+      : true;
+    const matchCompetition = this.filters.competition
+      ? p.competitionId?._id === this.filters.competition
+      : true;
+    const matchCategory = this.filters.category
+      ? p.categoryId?._id === this.filters.category
+      : true;
+    const matchSubCategory = this.filters.subCategory
+      ? p.subCategory === this.filters.subCategory
+      : true;
+
+    return matchName && matchCompetition && matchCategory && matchSubCategory;
+  });
+}
+
+resetFilters() {
+  this.filters = {
+    name: '',
+    competition: '',
+    category: '',
+    subCategory: ''
+  };
+}
+
+printTable() {
+  const printContents = document.querySelector('.table-wrapper')?.innerHTML;
+  const popupWin = window.open('', '_blank', 'width=900,height=700');
+  if (popupWin && printContents) {
+    popupWin.document.open();
+    popupWin.document.write(`
+      <html dir="rtl">
+        <head>
+          <title>تقرير المشاركات</title>
+          <style>
+            body { font-family: 'Tahoma', sans-serif; direction: rtl; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+            th { background-color: #f2f2f2; }
+            h2 { text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h2>تقرير المشاركات</h2>
+          ${printContents}
+        </body>
+      </html>
+    `);
+    popupWin.document.close();
+    popupWin.print();
+  }
+}
 }

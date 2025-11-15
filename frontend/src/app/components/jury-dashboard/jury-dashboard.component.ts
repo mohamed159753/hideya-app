@@ -95,7 +95,7 @@ export class JuryDashboardComponent implements OnInit {
       this.selectedAssignment.competitionId;
 
     // Derive categoryId from competitionCategoryId when assignments target subcategories
-    const cc = this.selectedAssignment.competitionCategoryId;
+    const cc = this.selectedAssignment;
     const catId =
       cc?.categoryId?._id ||
       cc?.categoryId ||
@@ -103,6 +103,11 @@ export class JuryDashboardComponent implements OnInit {
       this.selectedAssignment.categoryId;
 
     const requestedBy = this.currentUser?.id || this.currentUser?._id;
+
+    const subCatId = this.selectedAssignment.subCategory?._id || this.selectedAssignment.subCategory;
+
+    console.log('Checking results for:', { compId, catId, requestedBy });
+    console.log('fianl results for : ', {compId, catId, subCatId})
     this.resultsService.check(compId, catId, requestedBy).subscribe({
       next: (response: any) => {
         if (response.allowed) {
@@ -110,6 +115,7 @@ export class JuryDashboardComponent implements OnInit {
             .saveFinalResults({
               competitionId: compId,
               categoryId: catId,
+              subCategory: subCatId,
               requestedBy,
             })
             .subscribe(
@@ -375,7 +381,7 @@ export class JuryDashboardComponent implements OnInit {
             this.markForm.patchValue({
               juryId: res.juryId,
               participationId: res.participationId,
-              performanceLevel: res.performanceLevel || 'متوسط',
+              performanceLevel: res.performanceLevel || 'ممتاز',
               confirmed: !!res.confirmed,
             });
             // enable/disable performance control based on confirmed
@@ -395,7 +401,7 @@ export class JuryDashboardComponent implements OnInit {
             this.markForm.patchValue({
               juryId: juryId,
               participationId: participation._id,
-              performanceLevel: 'متوسط',
+              performanceLevel: 'ممتاز',
               confirmed: false,
             });
             // ensure performance control is enabled for a new mark
@@ -409,7 +415,7 @@ export class JuryDashboardComponent implements OnInit {
           this.markForm.patchValue({
             juryId: juryId,
             participationId: participation._id,
-            performanceLevel: 'متوسط',
+            performanceLevel: 'ممتاز',
             confirmed: false,
           });
           this.setQuestionsFromData(null);
@@ -733,11 +739,13 @@ export class JuryDashboardComponent implements OnInit {
   openResults(assignment: any) {
     const compId = assignment.competitionId?._id || assignment.competitionId;
     const catId = assignment.categoryId?._id || assignment.categoryId;
+    const subCatId = assignment.subCategory?._id || assignment.subCategory;
     if (!compId || !catId) {
       this.notify.error('معرّف المسابقة أو الفئة مفقود');
       return;
     }
     const requestedBy = this.currentUser?.id || this.currentUser?._id;
+    console.log('Generating final results for:', { compId, catId,subCatId, requestedBy });
     this.resultsService.check(compId, catId, requestedBy).subscribe(
       (res: any) => {
         if (!res?.allowed) {
@@ -751,6 +759,7 @@ export class JuryDashboardComponent implements OnInit {
           .saveFinalResults({
             competitionId: compId,
             categoryId: catId,
+            subCategory: subCatId,
             requestedBy,
           })
           .subscribe(

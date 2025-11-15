@@ -55,3 +55,22 @@ th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: right; }
 @media (max-width: 700px) {
   .form-row { flex-direction: column; }
 }
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.filters input,
+.filters select {
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.filters .btn {
+  padding: 0.4rem 0.8rem;
+}
+

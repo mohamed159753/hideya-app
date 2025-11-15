@@ -46,6 +46,45 @@
     </form>
   </div>
 
+
+  <!-- Filters -->
+<div class="filters card">
+  <h3>تصفية المشاركات</h3>
+  <div class="filter-grid">
+    <input
+      type="text"
+      placeholder="ابحث بالاسم..."
+      [(ngModel)]="filters.name"
+    />
+
+    <select [(ngModel)]="filters.competition">
+      <option value="">كل المسابقات</option>
+      <option *ngFor="let comp of competitions" [value]="comp._id">
+        {{ comp.title }}
+      </option>
+    </select>
+
+    <select [(ngModel)]="filters.category">
+      <option value="">كل الفئات</option>
+      <option *ngFor="let cat of categories" [value]="cat._id">
+        {{ cat.name }}
+      </option>
+    </select>
+
+    <select [(ngModel)]="filters.subCategory">
+      <option value="">كل الفئات الفرعية</option>
+      <option value="male">ذكور</option>
+      <option value="female">إناث</option>
+      <option *ngFor="let ag of allAgeGroups" [value]="'children_' + ag._id">
+        أطفال {{ ag.name }}
+      </option>
+    </select>
+
+    <button class="btn primary" (click)="resetFilters()">إعادة تعيين</button>
+    <button class="btn secondary" (click)="printTable()">طباعة</button>
+  </div>
+</div>
+
   <!-- Participation list -->
   <div class="card">
     <h2>قائمة المشاركات</h2>
@@ -61,7 +100,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of participations">
+          <tr *ngFor="let p of getFilteredParticipations()">
             <td>{{ p.competitorId?.firstName }} {{ p.competitorId?.lastName }}</td>
             <td>{{ p.competitionId?.title }}</td>
             <td>{{ p.categoryId?.name }}</td>

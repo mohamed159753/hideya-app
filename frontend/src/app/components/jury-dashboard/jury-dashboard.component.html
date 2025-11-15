@@ -672,7 +672,6 @@
             </div>
 
             <!-- Score Table -->
-            <!-- Score Table -->
             <div
               style="
                 background: #ffffff;
@@ -888,100 +887,75 @@
 
                         <!-- memorization counters -->
                         <td style="border: 1px solid #ccc; padding: 4px">
-                          <div class="counter">
+                          <div class="counter" formGroupName="memorization">
                             <button
                               (click)="decreaseMistake(i, 'tanbih')"
-                              [disabled]="
-                                isConfirmed || !isPresidentForSelected
-                              "
-                              type="button"
-                            >
+                              [disabled]="isConfirmed || !isPresidentForSelected"
+                              type="button">
                               −
                             </button>
                             <input
                               type="number"
                               formControlName="tanbih"
-                              [value]="
-                                qCtrl.get('memorization')?.get('tanbih')?.value
-                              "
                               readonly
-                            />
+                              style="width: 50px; text-align: center;" />
                             <button
                               (click)="increaseMistake(i, 'tanbih')"
-                              [disabled]="
-                                isConfirmed || !isPresidentForSelected
-                              "
-                              type="button"
-                            >
+                              [disabled]="isConfirmed || !isPresidentForSelected"
+                              type="button">
                               +
                             </button>
                           </div>
                         </td>
 
                         <td style="border: 1px solid #ccc; padding: 4px">
-                          <div class="counter">
+                          <div class="counter" formGroupName="memorization">
                             <button
                               (click)="decreaseMistake(i, 'fath')"
-                              [disabled]="
-                                isConfirmed || !isPresidentForSelected
-                              "
-                              type="button"
-                            >
+                              [disabled]="isConfirmed || !isPresidentForSelected"
+                              type="button">
                               −
                             </button>
                             <input
                               type="number"
-                              [value]="
-                                qCtrl.get('memorization')?.get('fath')?.value
-                              "
+                              formControlName="fath"
                               readonly
-                            />
+                              style="width: 50px; text-align: center;" />
                             <button
                               (click)="increaseMistake(i, 'fath')"
-                              [disabled]="
-                                isConfirmed || !isPresidentForSelected
-                              "
-                              type="button"
-                            >
+                              [disabled]="isConfirmed || !isPresidentForSelected"
+                              type="button">
                               +
                             </button>
                           </div>
                         </td>
 
                         <td style="border: 1px solid #ccc; padding: 4px">
-                          <div class="counter">
+                          <div class="counter" formGroupName="memorization">
                             <button
                               (click)="decreaseMistake(i, 'taradud')"
-                              [disabled]="
-                                isConfirmed || !isPresidentForSelected
-                              "
-                              type="button"
-                            >
+                              [disabled]="isConfirmed || !isPresidentForSelected"
+                              type="button">
                               −
                             </button>
                             <input
                               type="number"
-                              [value]="
-                                qCtrl.get('memorization')?.get('taradud')?.value
-                              "
+                              formControlName="taradud"
                               readonly
-                            />
+                              style="width: 50px; text-align: center;" />
                             <button
                               (click)="increaseMistake(i, 'taradud')"
-                              [disabled]="
-                                isConfirmed || !isPresidentForSelected
-                              "
-                              type="button"
-                            >
+                              [disabled]="isConfirmed || !isPresidentForSelected"
+                              type="button">
                               +
                             </button>
                           </div>
                         </td>
 
+                        <!-- memorization deduction column -->
                         <td
                           style="
                             border: 1px solid #ccc;
-                            padding: 4px;
                             background: #ffe6e6;
                             color: #c00;
                             font-weight: bold;
@@ -992,36 +966,24 @@
 
                         <!-- tajweed fields -->
                         <td
-                          *ngFor="
-                            let t of [
-                              'ghunna',
-                              'mad',
-                              'makharij',
-                              'sifat',
-                              'usul',
-                              'other'
-                            ]
-                          "
-                          style="border: 1px solid #ccc; padding: 4px"
-                        >
-                          <div class="counter">
+                          *ngFor="let t of ['ghunna', 'mad', 'makharij', 'sifat', 'usul', 'other']"
+                          style="border: 1px solid #ccc; padding: 4px">
+                          <div class="counter" formGroupName="tajweed">
                             <button
                               (click)="decreaseTaj(i, t)"
                               [disabled]="isConfirmed"
-                              type="button"
-                            >
+                              type="button">
                               −
                             </button>
                             <input
                               type="number"
-                              [value]="qCtrl.get('tajweed')?.get(t)?.value"
+                              [formControlName]="t"
                               readonly
-                            />
+                              style="width: 50px; text-align: center;" />
                             <button
                               (click)="increaseTaj(i, t)"
                               [disabled]="isConfirmed"
-                              type="button"
-                            >
+                              type="button">
                               +
                             </button>
                           </div>

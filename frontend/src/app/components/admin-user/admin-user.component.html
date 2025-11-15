@@ -46,37 +46,62 @@
 		</form>
 	</div>
 
-	<div class="card table-card">
-		<h2>أعضاء اللجنة</h2>
-		<div class="table-wrapper">
-			<table>
-				<thead>
-					<tr>
-						<th>الاسم</th>
-						<th>البريد</th>
-						<th>الدور</th>
-						<th>مرشح رئيسًا</th>
-						<th>الخبرة</th>
-						<th>الإجراءات</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr *ngFor="let u of users">
-						<td>{{ u.firstName }} {{ u.lastName }}</td>
-						<td>{{ u.email }}</td>
-						<td>{{ u.role }}</td>
-						<td>{{ u.canBePresident ? 'نعم' : 'لا' }}</td>
-						<td>{{ u.expertiseLevel || '-' }}</td>
-						<td>
-							<button class="btn small primary" (click)="edit(u)">تعديل</button>
-							<button class="btn small danger" (click)="delete(u._id)">حذف</button>
-						</td>
-					</tr>
-					<tr *ngIf="users.length === 0">
-						<td colspan="6" style="text-align:center">لا توجد بيانات</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
+	
+
+
+<div class="card table-card">
+  <h2>أعضاء اللجنة</h2>
+
+  <!-- ✅ Filters -->
+  <div class="filters">
+    <input type="text" placeholder="بحث بالاسم أو البريد..." [(ngModel)]="filters.query" (ngModelChange)="applyFilters()" />
+    
+	<select [(ngModel)]="filters.role" (ngModelChange)="applyFilters()" >
+      <option value="">كل الأدوار</option>
+      <option value="jury">عضو لجنة</option>
+      <option value="admin">مشرف</option>
+    </select>
+
+	<select [(ngModel)]="filters.canBePresident" (ngModelChange)="applyFilters()">
+  		<option value="">الكل</option>
+  		<option value="true">مرشح رئيسًا</option>
+  		<option value="false">غير مرشح</option>
+	</select>
+
+    <button class="btn small secondary" (click)="resetFilters()">إعادة تعيين</button>
+	<button class="btn small primary" (click)="printTable()">🖨️ طباعة</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>البريد</th>
+          <th>الدور</th>
+          <th>مرشح رئيسًا</th>
+          <th>الخبرة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- ✅ use filteredUsers instead of users -->
+        <tr *ngFor="let u of filteredUsers">
+          <td>{{ u.firstName }} {{ u.lastName }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+          <td>{{ u.canBePresident ? 'نعم' : 'لا' }}</td>
+          <td>{{ u.expertiseLevel || '-' }}</td>
+          <td>
+            <button class="btn small primary" (click)="edit(u)">تعديل</button>
+            <button class="btn small danger" (click)="delete(u._id)">حذف</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="6" style="text-align:center">لا توجد بيانات</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </div>
