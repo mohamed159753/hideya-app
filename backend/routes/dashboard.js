@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-const Competition = require('../models/competition');
+const Competition = require('../models/Competition');
 const Participation = require('../models/Participation');
 const User = require('../models/User');
 const Mark = require('../models/Mark');
 const JuryAssignment = require('../models/JuryAssignment');
-const Competitor = require('../models/Competitor');
+const Competitor = require('../models/competitor');
 const Branch = require('../models/Branch');
 const Category = require('../models/Category');
 const AgeGroup = require('../models/AgeGroup');
