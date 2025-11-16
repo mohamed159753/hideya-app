@@ -151,7 +151,7 @@ printTable() {
         this.loadUsers();
       });
     } else {
-      (payload as any).password = 'password123';
+      (payload as any).password = 'Hideya000111@';
       this.userService.create(payload).subscribe(() => {
         this.userForm.reset({ role: 'jury', canBePresident: false, expertiseLevel: 1 });
         this.loadUsers();

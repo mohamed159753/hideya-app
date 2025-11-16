@@ -1,1 +1,171 @@
-<p>admin-result-detail works!</p>
+<div class="container">
+  <!-- Column Selection Panel -->
+  <div class="column-selection no-print">
+    <h3>اختر الأعمدة للعرض والطباعة</h3>
+    <div class="columns-grid">
+      <ng-container *ngFor="let col of columns">
+        <label class="column-checkbox">
+          <input
+            type="checkbox"
+            [checked]="col.printable"
+            (change)="toggleColumn(col.key)"
+          />
+          <span>{{ col.label }}</span>
+        </label>
+      </ng-container>
+    </div>
+    <div class="column-actions">
+      <button class="btn-select-all" (click)="selectAllColumns()">
+        تحديد الكل
+      </button>
+      <button class="btn-deselect-all" (click)="deselectAllColumns()">
+        إلغاء الكل
+      </button>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions-container no-print">
+    <button class="btn btn-back" (click)="goBack()">← العودة</button>
+    <div class="action-buttons">
+      <button class="btn btn-print" (click)="printResults()">🖨️ طباعة</button>
+      <button class="btn btn-export" (click)="exportToExcel()">
+        📊 تصدير Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-icon">⏳</div>
+    <h3>جاري تحميل التفاصيل...</h3>
+  </div>
+
+  <!-- Results Table -->
+  <div *ngIf="!loading && result" class="printable-area fade-in">
+    <!-- Header -->
+    <div
+      style="
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        padding: 16px;
+        text-align: center;
+        border: 3px solid #000;
+        margin-bottom: 2px;
+      "
+    >
+      <h2 style="margin: 0; font-weight: bold">
+        {{ result?.competitionId?.title || "المسابقة" }}
+      </h2>
+      <p style="margin: 4px 0 0 0">
+        {{ result?.competitionId?.description || "" }}
+      </p>
+    </div>
+
+    <!-- Sub Header -->
+    <div
+      style="
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        padding: 12px;
+        text-align: center;
+        border: 3px solid #000;
+        border-top: none;
+        margin-bottom: 2px;
+      "
+    >
+      <h3 style="margin: 0; font-weight: bold">النتائج النهائية</h3>
+    </div>
+
+    <!-- Table -->
+    <table
+      style="
+        width: 100%;
+        border-collapse: collapse;
+        border: 3px solid #000;
+        border-top: none;
+        margin-bottom: 20px;
+      "
+    >
+      <thead>
+        <tr style="background: linear-gradient(135deg, #ffd700, #ffa500)">
+          <th
+            *ngFor="let col of columns"
+            [style.display]="col.printable ? '' : 'none'"
+            style="
+              border: 2px solid #000;
+              padding: 12px;
+              text-align: center;
+              font-weight: bold;
+            "
+          >
+            {{ col.label }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let entry of result.entries; let i = index"
+          [style.background]="getRowBackground(i)"
+        >
+          <td
+            *ngFor="let col of columns"
+            [style.display]="col.printable ? '' : 'none'"
+            style="border: 2px solid #000; padding: 10px; text-align: center"
+          >
+            {{ getColumnValue(entry, col.key) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Footer Info -->
+        <div *ngIf="result.note" style="
+          background: #f5f5f5;
+          padding: 16px;
+          border-radius: 8px;
+          margin-top: 20px;
+          border-right: 4px solid #2d8c4a;
+        ">
+          <div style="font-size: 12px; color: #666; margin-bottom: 4px;">ملاحظة:</div>
+          <div style="font-size: 14px; font-weight: 600; color: #333;">{{ result.note }}</div>
+        </div>
+
+        <div style="
+          margin-top: 20px;
+          padding: 16px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        ">
+          <div>
+            <div style="font-size: 12px; color: #666;">تم الإنشاء بواسطة</div>
+            <div style="font-size: 14px; font-weight: 600; color: #333;">
+              {{ result.generatedBy?.firstName }} {{ result.generatedBy?.lastName }}
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: #666;">التاريخ</div>
+            <div style="font-size: 14px; font-weight: 600; color: #333;">
+              {{ formatDate(result.createdAt) }}
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: #666;">عدد المشاركين</div>
+            <div style="font-size: 14px; font-weight: 600; color: #333;">
+              {{ result.entries?.length || 0 }}
+            </div>
+          </div>
+        </div>
+    <style>
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+      }
+    </style>
+</div>

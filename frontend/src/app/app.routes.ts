@@ -12,6 +12,8 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 import { JuryDashboardComponent } from './components/jury-dashboard/jury-dashboard.component';
 import { BranchManagementComponent } from './components/branch-management/branch-management.component';
 import { AuthGuard } from './services/auth.guard';
+import { AdminResultDetailComponent } from './components/admin-result-detail/admin-result-detail.component';
+import { AdminResultsDashboardComponent } from './components/admin-results-dashboard/admin-results-dashboard.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, },
@@ -52,8 +54,14 @@ export const routes: Routes = [
     data: { role: 'jury' }
    },
 
-  { path:'admin/results/:id', loadComponent: () => import('./components/admin-result-detail/admin-result-detail.component').then(m => m.AdminResultDetailComponent)},
-  { path: 'admin/results-dashboard', loadComponent: () => import('./components/admin-results-dashboard/admin-results-dashboard.component').then(m => m.AdminResultsDashboardComponent)},
+  { path:'admin/results/:id', component: AdminResultDetailComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+  },
+  { path: 'admin/results-dashboard', component: AdminResultsDashboardComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' }
+   },
   {
     path: 'branch-management',
     component: BranchManagementComponent,
