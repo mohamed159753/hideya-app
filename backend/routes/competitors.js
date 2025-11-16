@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const Competitor = require('../models/Competitor');
+const Competitor = require('../models/competitor');
 const Branch = require('../models/Branch');
 
 // ✅ Validation for competitor personal info
