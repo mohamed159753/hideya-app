@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "micro-cors": "^0.1.1"
+  }
+}

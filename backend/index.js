@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors");
+const microCors = require("micro-cors"); // ✅ import micro-cors
 
 // Models (optional)
 const User = require("./models/User");
@@ -25,11 +25,16 @@ const juryResultsRoutes = require("./routes/juryResults");
 const app = express();
 
 // ✅ CORS configuration for Vercel frontend
-app.use(cors({
-  origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS"
-}));
+const cors = microCors({
+  allowOrigin: [
+    "https://hideya-app.vercel.app",
+    "http://localhost:4200"
+  ],
+  allowMethods: ["GET","HEAD","PUT","PATCH","POST","DELETE","OPTIONS"],
+  allowCredentials: true,
+});
 
+// Parse JSON
 app.use(express.json());
 
 // Database connection
@@ -63,4 +68,4 @@ app.get("/test-db", (req, res) => {
 });
 
 // ❌ Do NOT use app.listen() in Vercel serverless
-module.exports = app;
+module.exports = cors(app); // ✅ wrap app with micro-cors

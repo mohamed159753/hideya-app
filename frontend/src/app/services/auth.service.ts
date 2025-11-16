@@ -32,7 +32,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password })
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password },{ withCredentials: true })
       .pipe(
         tap(response => {
           this.setSession(response);
