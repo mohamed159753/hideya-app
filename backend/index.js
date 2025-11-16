@@ -28,7 +28,8 @@ const app = express();
 app.use(cors({
   origin: [
     "https://hideya-app.vercel.app",
-    "http://localhost:4200"
+    "http://localhost:4200",
+    "https://competition.liadistribution.com"
   ],
   credentials: true,
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
