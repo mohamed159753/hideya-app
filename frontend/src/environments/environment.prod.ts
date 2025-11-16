@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: "https://hideya-backend.vercel.app"
+  apiUrl: "https://hideya-backend-one.vercel.app"
 };
