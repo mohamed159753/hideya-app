@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BranchService {
-  private apiUrl = 'http://localhost:5000/api/branches';
+  private apiUrl = '/api/branches';
 
   constructor(private http: HttpClient) {}
 

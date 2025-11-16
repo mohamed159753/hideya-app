@@ -14,7 +14,7 @@ export interface IJuryAssignment {
 
 @Injectable({ providedIn: 'root' })
 export class JuryAssignmentService {
-  private apiUrl = 'http://localhost:5000/api/jury-assignments';
+  private apiUrl = '/api/jury-assignments';
   constructor(private http: HttpClient, private notify: NotificationService) {}
 
   getByCompetition(competitionId: string): Observable<IJuryAssignment[]> {

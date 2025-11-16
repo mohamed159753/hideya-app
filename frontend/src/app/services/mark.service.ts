@@ -5,7 +5,7 @@ import { NotificationService } from './notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class MarkService {
-  private apiUrl = 'http://localhost:5000/api/marks';
+  private apiUrl = '/api/marks';
 
   // inject NotificationService via DI
   constructor(private http: HttpClient, private notify: NotificationService) {}

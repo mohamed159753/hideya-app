@@ -59,7 +59,7 @@ export interface CompetitionProgress {
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'http://localhost:5000/api/dashboard';
+  private apiUrl = '/api/dashboard';
 
   constructor(private http: HttpClient) { }
 

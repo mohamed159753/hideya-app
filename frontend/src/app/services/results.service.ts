@@ -5,7 +5,7 @@ import { NotificationService } from './notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class ResultsService {
-  private apiUrl = 'http://localhost:5000/api/jury-results';
+  private apiUrl = '/api/jury-results';
 
   constructor(private http: HttpClient, private notify: NotificationService) {}
 

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AgeGroupService {
 
-  private apiUrl = 'http://localhost:5000/api/age-groups';
+  private apiUrl = '/api/age-groups';
   
     constructor(private http: HttpClient) {}
   

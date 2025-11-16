@@ -16,7 +16,7 @@ interface Competition {
 })
 export class CompetitionService {
 
-    private apiUrl = 'http://localhost:5000/api/competitions'; // replace with your backend
+    private apiUrl = '/api/competitions'; // replace with your backend
 
 
   constructor(private http: HttpClient) { }

@@ -7,8 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class AdminAddService {
 
-  private apiUrl = 'http://localhost:5000/api/competitors'; // replace with your backend
-  private baseUrl = 'http://localhost:5000/api'; // adjust if needed
+  private apiUrl = '/api/competitors'; // replace with your backend
+  private baseUrl = '/api'; // adjust if needed
 
 
   constructor(private http: HttpClient) {}

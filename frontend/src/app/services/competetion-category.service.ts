@@ -17,7 +17,7 @@ export interface ICompetitionCategory {
   providedIn: 'root'
 })
 export class CompetitionCategoryService {
-  private apiUrl = 'http://localhost:5000/api/competition-categories';
+  private apiUrl = '/api/competition-categories';
 
   constructor(private http: HttpClient) {}
 
