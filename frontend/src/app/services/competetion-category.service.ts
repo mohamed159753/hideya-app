@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ICompetitionCategory {
   _id?: string;
@@ -17,7 +18,7 @@ export interface ICompetitionCategory {
   providedIn: 'root'
 })
 export class CompetitionCategoryService {
-  private apiUrl = '/api/competition-categories';
+  private apiUrl = `${environment.apiUrl}/api/competition-categories`;
 
   constructor(private http: HttpClient) {}
 

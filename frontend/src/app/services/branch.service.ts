@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BranchService {
-  private apiUrl = '/api/branches';
+  private apiUrl = `${environment.apiUrl}/api/branches`;
 
   constructor(private http: HttpClient) {}
 

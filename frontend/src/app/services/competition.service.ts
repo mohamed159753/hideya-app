@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface Competition {
   _id?: string;
@@ -16,7 +17,7 @@ interface Competition {
 })
 export class CompetitionService {
 
-    private apiUrl = '/api/competitions'; // replace with your backend
+    private apiUrl = `${environment.apiUrl}/api/competitions`; // replace with your backend
 
 
   constructor(private http: HttpClient) { }

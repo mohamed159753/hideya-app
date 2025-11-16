@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminAddService {
 
-  private apiUrl = '/api/competitors'; // replace with your backend
+  private apiUrl = `${environment.apiUrl}/api/competitors`; // replace with your backend
   private baseUrl = '/api'; // adjust if needed
 
 

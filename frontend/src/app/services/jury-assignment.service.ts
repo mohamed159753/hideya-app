@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { environment } from '../../environments/environment';
 
 export interface IJuryMember { userId: string; role: 'member' | 'president'; }
 export interface IJuryAssignment {
@@ -14,7 +15,7 @@ export interface IJuryAssignment {
 
 @Injectable({ providedIn: 'root' })
 export class JuryAssignmentService {
-  private apiUrl = '/api/jury-assignments';
+  private apiUrl = `${environment.apiUrl}/api/jury-assignments`;
   constructor(private http: HttpClient, private notify: NotificationService) {}
 
   getByCompetition(competitionId: string): Observable<IJuryAssignment[]> {
