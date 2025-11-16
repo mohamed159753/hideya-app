@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-// Models (optional to import here)
+// Models (optional)
 const User = require("./models/User");
 const Participation = require("./models/Participation");
 
@@ -24,13 +24,23 @@ const juryResultsRoutes = require("./routes/juryResults");
 
 const app = express();
 
+// ✅ CORS configuration for Vercel frontend
 const corsOptions = {
-  origin: "https://hideya-app.vercel.app", // your frontend URL
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
+  origin: [
+    "https://hideya-app.vercel.app", // your production frontend
+    "http://localhost:4200"           // local Angular dev
+  ],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+  credentials: true
 };
 
+// Enable CORS globally
 app.use(cors(corsOptions));
+
+// Handle preflight requests (important for serverless)
+app.options("*", cors(corsOptions));
+
+// Parse JSON
 app.use(express.json());
 
 // Database connection
@@ -63,9 +73,5 @@ app.get("/test-db", (req, res) => {
   res.send("MongoDB Atlas is working");
 });
 
-// ❌ REMOVE app.listen()
-// ❌ Vercel cannot run a real server
-// app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-
-// ✅ IMPORTANT: Export the app for Vercel serverless functions
+// ❌ Do NOT use app.listen() in Vercel serverless
 module.exports = app;
