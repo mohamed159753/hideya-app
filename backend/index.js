@@ -24,7 +24,13 @@ const juryResultsRoutes = require("./routes/juryResults");
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: "https://hideya-app.vercel.app", // your frontend URL
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Database connection
