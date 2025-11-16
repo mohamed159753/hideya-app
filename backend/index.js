@@ -25,22 +25,11 @@ const juryResultsRoutes = require("./routes/juryResults");
 const app = express();
 
 // ✅ CORS configuration for Vercel frontend
-const corsOptions = {
-  origin: [
-    "https://hideya-app.vercel.app", // your production frontend
-    "http://localhost:4200"           // local Angular dev
-  ],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-  credentials: true
-};
+app.use(cors({
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS"
+}));
 
-// Enable CORS globally
-app.use(cors(corsOptions));
-
-// Handle preflight requests (important for serverless)
-app.options("*", cors(corsOptions));
-
-// Parse JSON
 app.use(express.json());
 
 // Database connection
