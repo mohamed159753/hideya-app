@@ -66,7 +66,7 @@ app.get("/", (req, res) => {
 // Simple DB test
 app.get("/test-db", (req, res) => {
   res.send("MongoDB Atlas is working");
-});g
+});
 
 // ❌ Do NOT use app.listen() in Vercel serverless
 module.exports = app; // ✅ No need to wrap with cors
